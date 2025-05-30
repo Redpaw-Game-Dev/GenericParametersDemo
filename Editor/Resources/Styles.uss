@@ -1,0 +1,137 @@
+.align-horizontal {
+    flex-direction: row;
+}
+
+.text-align-middle {
+    -unity-text-align: middle-left;
+}
+
+.label {
+    -unity-text-align: middle-left;
+    margin-left: 3px;
+}
+
+.parameter-header {
+    height: 20px;
+}
+
+.modable-param-label {
+    width: 65px;
+}
+
+.modable-param {
+    width: 70px;
+}
+
+.foldout-arrow {
+    width: 14px;
+    height: 14px;
+    background-color: rgba(88, 88, 88, 0);
+    border-left-color: rgba(92, 92, 92, 0);
+    border-right-color: rgba(92, 92, 92, 0);
+    border-top-color: rgba(92, 92, 92, 0);
+    border-bottom-color: rgba(92, 92, 92, 0);
+    margin-left: 2px;
+    -unity-background-image-tint-color: rgb(209, 208, 208);
+    scale: 0.76 0.76;
+    margin-right: 0;
+    padding-right: 0;
+    background-image: url("project://database/Packages/com.lazyredpaw.genericparametersdemo/Sprites/Arrow.png?fileID=2800000&guid=a6a045933fd000b4c9ee2355f90f6f24&type=3#Arrow");
+    margin-top: 2px;
+}
+
+.flex-grow {
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.expand-button-expanded {
+    transition-property: rotate;
+    rotate: 90deg;
+}
+
+.category-button-revert {
+    width: 60px;
+}
+
+.category-root {
+    flex-grow: 1;
+    border-left-color: rgb(48, 48, 48);
+    border-right-color: rgb(48, 48, 48);
+    border-top-color: rgb(48, 48, 48);
+    border-bottom-color: rgb(36, 36, 36);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    background-color: rgb(61, 61, 61);
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+}
+
+.align-horizontal {
+    flex-direction: row;
+}
+
+.flex-grow {
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.align-horizontal {
+    flex-direction: row;
+}
+
+.error-text-color {
+    color: rgb(255, 0, 0);
+}
+
+.changed-border {
+    border-left-color: rgb(255, 238, 0);
+    border-right-color: rgb(255, 238, 0);
+    border-top-color: rgb(255, 238, 0);
+    border-bottom-color: rgb(255, 238, 0);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.parameter-dropdown {
+    width: 38%;
+}
+
+.button-save-tmp {
+    font-size: 14px;
+    background-color: rgb(0, 88, 35);
+}
+
+.margin-left-15 {
+    margin-left: 15px;
+}
+
+.margin-left-10 {
+    margin-left: 10px;
+}
+
+.unity-property-field:hover {
+    background-color: rgb(48, 48, 48);
+}
+
+.param-list-item {
+    padding-right: 25px;
+}
+
+.param-remove-button:hover {
+    background-color: rgb(64, 64, 64);
+}

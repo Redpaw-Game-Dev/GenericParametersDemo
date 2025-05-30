@@ -1,0 +1,43 @@
+﻿using System;
+using LazyRedpaw.StaticHashes;
+using UnityEngine;
+
+namespace LazyRedpaw.GenericParameters
+{
+    [Serializable]
+    public class Parameter
+    {
+        [SerializeField, StaticHash] protected int _hash;
+        
+        public int Hash => _hash;
+
+        public event Action Changed;
+        
+        public Parameter() { }
+        public Parameter(int hash) => _hash = hash;
+
+        public virtual Parameter Copy() => new Parameter(_hash);
+        
+        protected void InvokeChanged() => Changed?.Invoke();
+    }
+
+    public abstract class Parameter<T> : Parameter
+    {
+        [SerializeField] protected T _value;
+
+        public T Value
+        {
+            get => _value;
+            set
+            {
+                _value = value;
+                InvokeChanged();
+            }
+        }
+
+        protected Parameter() { }
+        protected Parameter(int hash) : base(hash) { }
+        protected Parameter(T value) : this() => _value = value;
+        protected Parameter(int hash, T value) : base(hash) => _value = value;
+    }
+}
