@@ -1,7 +1,7 @@
 {
   "name": "com.lazyredpaw.genericparametersdemo",
   "displayName": "Generic Parameters Demo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "unity": "6000.0",
   "type": "plugin",
   "author": {
@@ -9,8 +9,8 @@
   },
   "description": "Plugin for parameterization",
   "dependencies": {
-    "com.lazyredpaw.statichashesdemo": "0.0.6",
-    "com.lazyredpaw.guidserialization": "1.0.0",
+    "com.lazyredpaw.statichashesdemo": "0.0.7",
+    "com.lazyredpaw.guidserialization": "1.0.1",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }

@@ -1,4 +1,17 @@
 {
-	"name": "LazyRedpaw.GenericParameters",
-	"references":[ "GUID:9d0471dc0d237ed48ba6c1246d935734", "GUID:65b9459197fb99545a7b12f66f444e4b" ]
+    "name": "LazyRedpaw.GenericParameters",
+    "rootNamespace": "",
+    "references": [
+        "LazyRedpaw.GuidSerialization",
+        "LazyRedpaw.StaticHashes"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
