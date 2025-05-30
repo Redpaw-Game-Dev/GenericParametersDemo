@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 127da1bb7f8240618d95720de79e10db
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _styleUSS: {fileID: 7433441132597879392, guid: 6e6f2a4c079ffc34f9634860c27402ea, type: 3}
+  - _categoryTreeAsset: {fileID: 9197481963319205126, guid: ea5bde03fd7e68040971d784b3f5b61f, type: 3}
+  - _contextMenuTreeAsset: {fileID: 9197481963319205126, guid: a7226cf71f0c118408274417648fffb8, type: 3}
+  - _contextMenuItemTreeAsset: {fileID: 9197481963319205126, guid: 8fb94dececd1b734fa88d4b40df53f6e, type: 3}
+  - _paramListItemTreeAsset: {fileID: 9197481963319205126, guid: 5dc96de328ffc6945891cceaf5cbfbca, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
