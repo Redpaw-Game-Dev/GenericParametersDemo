@@ -2,7 +2,10 @@
     "name": "LazyRedpaw.GenericParameters.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:c99c7f9cc0c94be40b346ee9250a22f3"
+        "GUID:c99c7f9cc0c94be40b346ee9250a22f3",
+        "GUID:397c00de742f34c4bb4559879e601e03",
+        "GUID:768a8de4bde697847bf2bf2e4f86c454",
+        "GUID:aafb010f60e95f34081fdf4e8482cd9a"
     ],
     "includePlatforms": [
         "Editor"

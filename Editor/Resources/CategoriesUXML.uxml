@@ -1,0 +1,12 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.lazyredpaw.genericparametersdemo/Editor/Resources/Styles.uss?fileID=7433441132597879392&amp;guid=6e6f2a4c079ffc34f9634860c27402ea&amp;type=3#Styles" />
+    <engine:VisualElement name="CategoryRoot" style="flex-grow: 1; flex-direction: row; margin-left: 12px;">
+        <engine:Label text="Items 0" name="CategoriesCount" picking-mode="Ignore" class="text-align-middle" style="position: absolute; -unity-text-align: upper-right; top: 3px; right: 0;" />
+        <engine:Foldout text="Foldout" value="true" name="CategoriesFoldout" style="flex-grow: 1;">
+            <engine:VisualElement name="AddCategoryContainer" class="align-horizontal" style="flex-grow: 1; margin-left: -26px;" />
+            <engine:VisualElement name="CategoriesListContainer" style="flex-grow: 1;">
+                <engine:ScrollView name="CategoriesList" horizontal-scroller-visibility="Hidden" style="background-color: rgb(70, 70, 70); border-bottom-color: rgba(0, 0, 0, 0.64); border-left-color: rgba(0, 0, 0, 0.64); border-right-color: rgba(0, 0, 0, 0.64); border-top-color: rgba(0, 0, 0, 0.64); border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; border-top-left-radius: 3px; border-top-right-radius: 3px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-grow: 1; padding-bottom: 2px; padding-top: 2px; margin-left: -26px; max-height: 250px; flex-shrink: 0;" />
+            </engine:VisualElement>
+        </engine:Foldout>
+    </engine:VisualElement>
+</engine:UXML>

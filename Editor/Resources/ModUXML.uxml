@@ -1,0 +1,18 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.lazyredpaw.genericparametersdemo/Editor/Resources/Styles.uss?fileID=7433441132597879392&amp;guid=6e6f2a4c079ffc34f9634860c27402ea&amp;type=3#Styles" />
+    <engine:VisualElement name="Root" style="flex-grow: 1;">
+        <engine:VisualElement name="MainContainer" class="align-horizontal" style="flex-grow: 1;">
+            <engine:VisualElement class="flex-grow align-horizontal" style="flex-grow: 1; max-width: 25%; left: -15px;">
+                <engine:Button name="ExpandButton" class="foldout-arrow" />
+                <engine:Label text="Element 0" name="ModLabel" class="text-align-middle flex-grow" />
+            </engine:VisualElement>
+            <engine:VisualElement class="align-horizontal" style="flex-grow: 1; width: 60%; align-content: stretch; justify-content: center; max-width: 500px;">
+                <engine:VisualElement name="TypePopupContainer" style="flex-grow: 1; flex-direction: row; align-content: stretch; align-self: stretch; width: 40%;" />
+                <engine:Label text="Action" class="text-align-middle" style="margin-right: 2px; margin-left: 6px; width: 10%;" />
+                <engine:EnumField value="Center" type="LazyRedpaw.GenericParameters.ModAction, LazyRedpaw.GenericParameters" name="ModActionField" style="flex-grow: 1; width: 30%;" />
+                <engine:VisualElement name="ValueContainer" style="flex-grow: 1; flex-direction: row; align-content: stretch; align-self: stretch; width: 20%;" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement name="DebugContainer" style="flex-grow: 1;" />
+    </engine:VisualElement>
+</engine:UXML>

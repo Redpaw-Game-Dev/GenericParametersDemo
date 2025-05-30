@@ -1,0 +1,9 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.lazyredpaw.genericparametersdemo/Editor/Resources/Styles.uss?fileID=7433441132597879392&amp;guid=6e6f2a4c079ffc34f9634860c27402ea&amp;type=3#Styles" />
+    <engine:VisualElement name="ParameterRoot" class="align-horizontal" style="flex-grow: 1;">
+        <engine:DropdownField name="ParameterNameDropdown" class="flex-grow parameter-dropdown" />
+        <engine:DropdownField name="ParameterTypeDropdown" class="flex-grow parameter-dropdown" />
+        <engine:Button text="Revert" name="RevertParameterButton" style="display: none;" />
+        <engine:Button text="X" name="DeleteButton" class="error-text-color" />
+    </engine:VisualElement>
+</engine:UXML>
