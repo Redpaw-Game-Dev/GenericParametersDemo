@@ -12,12 +12,17 @@ namespace LazyRedpaw.GenericParameters
     [CustomPropertyDrawer(typeof(Parameter), true)]
     public class ParameterDrawer : PropertyDrawer
     {
-        [SerializeField] protected StyleSheet _styleUSS;
+        protected static readonly StyleSheet StyleUSS;
 
+        static ParameterDrawer()
+        {
+            StyleUSS = Resources.Load<StyleSheet>("Styles");
+        }
+        
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             VisualElement root = new VisualElement();
-            root.styleSheets.Add(_styleUSS);
+            root.styleSheets.Add(StyleUSS);
 
             Type type = property.GetPropertyFieldType();
 

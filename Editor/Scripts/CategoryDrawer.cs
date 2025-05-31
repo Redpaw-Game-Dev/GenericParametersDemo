@@ -16,14 +16,18 @@ namespace LazyRedpaw.GenericParameters
     [CustomPropertyDrawer(typeof(Category))]
     public class CategoryDrawer : PropertyDrawer
     {
-        [SerializeField] protected StyleSheet _styleUSS;
-        [SerializeField] protected VisualTreeAsset _categoryTreeAsset;
-        [SerializeField] protected VisualTreeAsset _paramListItemTreeAsset;
+        private static readonly StyleSheet StyleUSS;
+        private static readonly VisualTreeAsset CategoryTreeAsset;
+        private static readonly VisualTreeAsset ParamListItemTreeAsset;
         
         private static readonly Dictionary<string, ParameterJson> ParamJsonMap;
 
         static CategoryDrawer()
         {
+            StyleUSS = Resources.Load<StyleSheet>("Styles");
+            CategoryTreeAsset = Resources.Load<VisualTreeAsset>("CategoryUXML");
+            ParamListItemTreeAsset = Resources.Load<VisualTreeAsset>("ParamListItemUXML");
+            
             string json = File.ReadAllText(GenericParametersJsonFilePath);
             List<CategoryJson> categoriesJson = JsonConvert.DeserializeObject<MainJson>(json).Categories;
 
@@ -44,7 +48,7 @@ namespace LazyRedpaw.GenericParameters
             List<string> availableHashNames = new List<string>();
 
             VisualElement root = new VisualElement();
-            root.styleSheets.Add(_styleUSS);
+            root.styleSheets.Add(StyleUSS);
             
             SerializedProperty hashProp = property.FindPropertyRelative(HashPropName);
             int categoryHash = hashProp.intValue;
@@ -57,7 +61,7 @@ namespace LazyRedpaw.GenericParameters
                 SerializedProperty paramsProp = property.FindPropertyRelative("_parameters");
                 UpdateAvailableParamNames();
                 
-                _categoryTreeAsset.CloneTree(root);
+                CategoryTreeAsset.CloneTree(root);
                 Foldout parametersHeader = root.Q<Foldout>(ParametersFoldout);
                 Label parametersCountLabel = root.Q<Label>(ParametersCount);
                 ScrollView parametersScrollView = root.Q<ScrollView>(ParametersList);
@@ -170,7 +174,7 @@ namespace LazyRedpaw.GenericParameters
                     for (int i = 0; i < paramsProp.arraySize; i++)
                     {
                         SerializedProperty paramProp = paramsProp.GetArrayElementAtIndex(i);
-                        _paramListItemTreeAsset.CloneTree(parametersScrollView.contentContainer);
+                        ParamListItemTreeAsset.CloneTree(parametersScrollView.contentContainer);
                         VisualElement paramRoot = root.Q<VisualElement>(ParamListItemRoot);
                         int paramHash = paramProp.FindPropertyRelative(HashPropName).intValue;
                         paramRoot.name = GetHashName(paramHash);

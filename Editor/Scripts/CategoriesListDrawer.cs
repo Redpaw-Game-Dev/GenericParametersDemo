@@ -15,14 +15,16 @@ namespace LazyRedpaw.GenericParameters
     [CustomPropertyDrawer(typeof(CategoriesList))]
     public class CategoriesListDrawer : PropertyDrawer
     {
-        // [SerializeField] protected StyleSheet _styleUSS;
-        [SerializeField] private VisualTreeAsset _categoriesListTreeAsset;
-        [SerializeField] private VisualTreeAsset _listItemTreeAsset;
+        private static readonly VisualTreeAsset CategoriesListTreeAsset;
+        private static readonly VisualTreeAsset ListItemTreeAsset;
 
         private static readonly Dictionary<string, CategoryJson> CategoriesJsonMap;
 
         static CategoriesListDrawer()
         {
+            CategoriesListTreeAsset = Resources.Load<VisualTreeAsset>("CategoriesUXML");
+            ListItemTreeAsset = Resources.Load<VisualTreeAsset>("CategoryListItemUXML");
+            
             string json = File.ReadAllText(GenericParametersJsonFilePath);
             List<CategoryJson> categoriesJson = JsonConvert.DeserializeObject<MainJson>(json).Categories;
             CategoriesJsonMap = new Dictionary<string, CategoryJson>();
@@ -43,7 +45,7 @@ namespace LazyRedpaw.GenericParameters
             SerializedProperty categoriesProp = property.FindPropertyRelative("_categories");
             UpdateAvailableNames();
 
-            _categoriesListTreeAsset.CloneTree(root);
+            CategoriesListTreeAsset.CloneTree(root);
             Foldout header = root.Q<Foldout>(CategoriesFoldout);
             Label countLabel = root.Q<Label>(CategoriesCount);
             ScrollView scrollView = root.Q<ScrollView>(Constants.CategoriesList);
@@ -157,7 +159,7 @@ namespace LazyRedpaw.GenericParameters
                 for (int i = 0; i < categoriesProp.arraySize; i++)
                 {
                     SerializedProperty elemProp = categoriesProp.GetArrayElementAtIndex(i);
-                    _listItemTreeAsset.CloneTree(scrollView.contentContainer);
+                    ListItemTreeAsset.CloneTree(scrollView.contentContainer);
                     VisualElement elemRoot = root.Q<VisualElement>(CategoryListItemRoot);
                     int hash = elemProp.FindPropertyRelative(HashPropName).intValue;
                     elemRoot.name = GetCategoryName(hash);
