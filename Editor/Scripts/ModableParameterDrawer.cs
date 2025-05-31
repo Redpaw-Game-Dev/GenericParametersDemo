@@ -27,7 +27,7 @@ namespace LazyRedpaw.GenericParameters
             if (!isParentGeneric) return base.CreatePropertyGUI(property);
 
             VisualElement root = new VisualElement();
-            root.styleSheets.Add(_styleUSS);
+            root.styleSheets.Add(StyleUSS);
 
             VisualElement header = new VisualElement();
             header.AddToClassList(ParameterHeader);
