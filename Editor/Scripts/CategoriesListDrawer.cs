@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -24,6 +23,17 @@ namespace LazyRedpaw.GenericParameters
         {
             CategoriesListTreeAsset = Resources.Load<VisualTreeAsset>("CategoriesUXML");
             ListItemTreeAsset = Resources.Load<VisualTreeAsset>("CategoryListItemUXML");
+
+            if (!File.Exists(GenericParametersJsonFilePath))
+            {
+                string directory = Path.GetDirectoryName(GenericParametersJsonFilePath);
+                if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                File.Create(GenericParametersJsonFilePath).Close();
+                MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
+                string newFileJson = JsonConvert.SerializeObject(mainJson);
+                File.WriteAllText(GenericParametersJsonFilePath, newFileJson);
+                AssetDatabase.Refresh();
+            }
             
             string json = File.ReadAllText(GenericParametersJsonFilePath);
             List<CategoryJson> categoriesJson = JsonConvert.DeserializeObject<MainJson>(json).Categories;

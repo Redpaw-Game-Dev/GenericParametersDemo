@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -60,7 +61,7 @@ namespace LazyRedpaw.GenericParameters
         public const string ModableParamLabel = "modable-param-label";
         public const string ParamListItem = "param-list-item";
         
-        public const string GenericParametersJsonFilePath = "Assets/Settings/LazyRedpaw/GenericParameters.json";
+        public static readonly string GenericParametersJsonFilePath = Path.Combine(Application.dataPath, "Settings/LazyRedpaw/GenericParameters.json");
 
         public static readonly List<string> NoAvailableChoices = new() { "There is no available option" };
         public const string NullParameterText = "Parameter is null";
