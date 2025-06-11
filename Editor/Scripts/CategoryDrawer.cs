@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using LazyRedpaw.StaticHashes;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -20,27 +19,13 @@ namespace LazyRedpaw.GenericParameters
         private static readonly VisualTreeAsset CategoryTreeAsset;
         private static readonly VisualTreeAsset ParamListItemTreeAsset;
         
-        private static readonly Dictionary<string, ParameterJson> ParamJsonMap;
+        // private static readonly List<CategoryJson> CategoriesJsonList;
 
         static CategoryDrawer()
         {
             StyleUSS = Resources.Load<StyleSheet>("Styles");
             CategoryTreeAsset = Resources.Load<VisualTreeAsset>("CategoryUXML");
             ParamListItemTreeAsset = Resources.Load<VisualTreeAsset>("ParamListItemUXML");
-            
-            string json = File.ReadAllText(GenericParametersJsonFilePath);
-            List<CategoryJson> categoriesJson = JsonConvert.DeserializeObject<MainJson>(json).Categories;
-
-            ParamJsonMap = new Dictionary<string, ParameterJson>();
-            for (int i = 0; i < categoriesJson.Count; i++)
-            {
-                CategoryJson category = categoriesJson[i];
-                for (int j = 0; j < category.Parameters.Count; j++)
-                {
-                    ParameterJson parameter = category.Parameters[j];
-                    ParamJsonMap.Add(GetHashName(parameter.Hash), parameter);
-                }
-            }
         }
         
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -57,6 +42,27 @@ namespace LazyRedpaw.GenericParameters
             
             if (isCategoryExisting)
             {
+                string[] lines = File.ReadAllLines(GenericParametersJsonFilePath);
+                int startIndex = lines[JsonRowIndex].IndexOf("\"", StringComparison.Ordinal);
+                int endIndex = lines[JsonRowIndex].LastIndexOf("\"", StringComparison.Ordinal);
+                string value = lines[JsonRowIndex].Substring(startIndex + 1, endIndex - startIndex - 1);
+                string json = value.Replace("\\", "");
+                List<CategoryJson> categoriesJsonList = JsonConvert.DeserializeObject<MainJson>(json).Categories;
+                
+                Dictionary<string, ParameterJson> paramJsonMap = new Dictionary<string, ParameterJson>();
+                for (int i = 0; i < categoriesJsonList.Count; i++)
+                {
+                    CategoryJson category = categoriesJsonList[i];
+                    if (category.Hash == categoryHash)
+                    {
+                        for (int j = 0; j < category.Parameters.Count; j++)
+                        {
+                            ParameterJson parameter = category.Parameters[j];
+                            paramJsonMap.Add(GetHashName(parameter.Hash), parameter);
+                        }
+                    }
+                }
+                
                 string name = GetCategoryName(categoryHash);
                 SerializedProperty paramsProp = property.FindPropertyRelative("_parameters");
                 UpdateAvailableParamNames();
@@ -101,7 +107,7 @@ namespace LazyRedpaw.GenericParameters
                 
                 void OnAddButtonClicked()
                 {
-                    CreateNewParam(ParamJsonMap[popupField.value]);
+                    CreateNewParam(paramJsonMap[popupField.value]);
                     UpdatePopupField();
                     ResetParametersList();
                 }
@@ -212,16 +218,22 @@ namespace LazyRedpaw.GenericParameters
                 void UpdateAvailableParamNames()
                 {
                     paramsProp.serializedObject.Update();
-                    List<int> hashes = new List<int>(GetHashes(categoryHash));
+                    List<ParameterJson> parameterJsons = new List<ParameterJson>(paramJsonMap.Values);
                     for (int i = 0; i < paramsProp.arraySize; i++)
                     {
                         SerializedProperty element = paramsProp.GetArrayElementAtIndex(i);
-                        hashes.Remove(element.FindPropertyRelative(HashPropName).intValue);
+                        for (int j = parameterJsons.Count - 1; j >= 0; j--)
+                        {
+                            if (parameterJsons[j].Hash == element.FindPropertyRelative(HashPropName).intValue)
+                            {
+                                parameterJsons.RemoveAt(j);
+                            } 
+                        }
                     }
                     availableHashNames.Clear();
-                    for (int i = 0; i < hashes.Count; i++)
+                    for (int i = 0; i < parameterJsons.Count; i++)
                     {
-                        availableHashNames.Add(GetHashName(hashes[i]));
+                        availableHashNames.Add(GetHashName(parameterJsons[i].Hash));
                     }
                 }
             }
