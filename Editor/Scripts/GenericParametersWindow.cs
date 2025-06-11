@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -35,6 +37,7 @@ namespace LazyRedpaw.GenericParameters
         private bool _isExpanded;
         private List<Type> _parameterTypes;
         private List<string> _parameterTypeNames;
+        private List<CategoryJson> _categoryJsons;
 
         [MenuItem("Window/Generic Parameters")]
         private static void OpenWindow()
@@ -49,6 +52,7 @@ namespace LazyRedpaw.GenericParameters
             _parameterTypeNames = names.ToList();
             _categories = new List<CategoryElement>();
             _deletedCategories = new List<CategoryElement>();
+            _categoryJsons = new List<CategoryJson>();
             InitUiElements();
         }
 
@@ -72,29 +76,108 @@ namespace LazyRedpaw.GenericParameters
 
         private void LoadJson()
         {
-            if (!IsFileExisting(GenericParametersJsonFilePath)) return;
-            string json = File.ReadAllText(GenericParametersJsonFilePath);
-            MainJson mainJson = JsonConvert.DeserializeObject<MainJson>(json);
-            for (int i = 0; i < mainJson.Categories.Count; i++)
+            // if (!IsFileExisting(GenericParametersJsonFilePath)) CreateFile(GenericParametersJsonFilePath);
+            // string json = File.ReadAllText(GenericParametersJsonFilePath);
+            string json = string.Empty;
+            if (!File.Exists(GenericParametersJsonFilePath))
             {
-                LoadCategory(mainJson.Categories[i]);
+                string directory = Path.GetDirectoryName(GenericParametersJsonFilePath);
+                if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                File.Create(GenericParametersJsonFilePath).Close();
+                MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
+                json = JsonConvert.SerializeObject(mainJson);
+                string jsonForFile = json;
+                for (int i = 0; i < jsonForFile.Length; i++)
+                {
+                    if (jsonForFile[i] == '"')
+                    {
+                        jsonForFile = jsonForFile.Insert(i, "\\");
+                        i++;
+                    }
+                }
+                List<string> lines = new List<string>(StorageTemplate);
+                lines.Insert(JsonRowIndex, $"\"{jsonForFile}\";");
+                File.WriteAllLines(GenericParametersJsonFilePath, lines);
+                AssetDatabase.Refresh();
+            }
+            else
+            {
+                string[] lines = File.ReadAllLines(GenericParametersJsonFilePath);
+                int startIndex = lines[JsonRowIndex].IndexOf("\"", StringComparison.Ordinal);
+                int endIndex = lines[JsonRowIndex].LastIndexOf("\"", StringComparison.Ordinal);
+                string value = lines[JsonRowIndex].Substring(startIndex + 1, endIndex - startIndex - 1);
+                json = value.Replace("\\", "");
+            }
+            _categoryJsons = JsonConvert.DeserializeObject<MainJson>(json).Categories;
+            // AssetDatabase.Refresh();
+            // byte[] buffer = new byte[fs.Length];
+            // fs.Read(buffer, 0, buffer.Length);
+            // fs.Close();
+            // string json = Encoding.UTF8.GetString(buffer);
+            for (int i = 0; i < _categoryJsons.Count; i++)
+            {
+                LoadCategory(_categoryJsons[i]);
             }
         }
 
         private void OnSaveButtonClicked()
         {
-            for (int i = 0; i < _categories.Count; i++)
+            for (int i = 0; i < _categoryJsons.Count; i++)
             {
-                CategoryElement category = _categories[i];
-                for (int j = 0; j < category.Parameters.Count; j++)
+                CategoryJson categoryJson = _categoryJsons[i];
+                CategoryElement category = null;
+                for (int j = 0; j < _categories.Count; j++)
                 {
-                    ParameterElement parameter = category.Parameters[j];
-                    if (parameter.IsTypeChanged)
+                    if (categoryJson.Hash == _categories[j].Hash)
                     {
-                        UpdateParameterFields(parameter.Hash, Type.GetType(parameter.AssemblyQualifiedName));
+                        category = _categories[j];
+                        break;
+                    }
+                }
+
+                if (category == null)
+                {
+                    UpdateParameterFields(categoryJson.Hash, null);
+                }
+                else
+                {
+                    for (int j = 0; j < categoryJson.Parameters.Count; j++)
+                    {
+                        ParameterJson parameterJson = categoryJson.Parameters[j];
+                        ParameterElement parameter = null;
+                        for (int k = 0; k < category.Parameters.Count; k++)
+                        {
+                            if (parameterJson.Hash == category.Parameters[k].Hash)
+                            {
+                                parameter = category.Parameters[k];
+                                if (parameter.IsTypeChanged)
+                                {
+                                    UpdateParameterFields(parameter.Hash, Type.GetType(parameter.AssemblyQualifiedName));
+                                }
+                                break;
+                            }
+                        }
+
+                        if (parameter == null)
+                        {
+                            UpdateParameterFields(parameterJson.Hash, null);
+                        }
                     }
                 }
             }
+            
+            // for (int i = 0; i < _categories.Count; i++)
+            // {
+            //     CategoryElement category = _categories[i];
+            //     for (int j = 0; j < category.Parameters.Count; j++)
+            //     {
+            //         ParameterElement parameter = category.Parameters[j];
+            //         if (parameter.IsTypeChanged)
+            //         {
+            //             UpdateParameterFields(parameter.Hash, Type.GetType(parameter.AssemblyQualifiedName));
+            //         }
+            //     }
+            // }
             
             MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
             for (int i = 0; i < _categories.Count; i++)
@@ -102,8 +185,17 @@ namespace LazyRedpaw.GenericParameters
                 mainJson.Categories.Add(_categories[i].GetCategoryJson());
             }
             string json = JsonConvert.SerializeObject(mainJson);
-            if (!IsFileExisting(GenericParametersJsonFilePath)) CreateFile(GenericParametersJsonFilePath);
-            File.WriteAllText(GenericParametersJsonFilePath, json);
+            for (int i = 0; i < json.Length; i++)
+            {
+                if (json[i] == '"')
+                {
+                    json = json.Insert(i, "\\");
+                    i++;
+                }
+            }
+            List<string> lines = new List<string>(StorageTemplate);
+            lines.Insert(JsonRowIndex, $"\"{json}\";");
+            File.WriteAllLines(GenericParametersJsonFilePath, lines);
             AssetDatabase.Refresh();
         }
 
@@ -116,7 +208,14 @@ namespace LazyRedpaw.GenericParameters
         {
             string directory = Path.GetDirectoryName(filePath);
             if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-            File.Create(filePath).Close();
+            FileStream fs = File.Create(filePath);
+            MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
+            string newFileJson = JsonConvert.SerializeObject(mainJson);
+            byte[] bytes = Encoding.UTF8.GetBytes(newFileJson);
+            fs.Write(bytes, 0, bytes.Length);
+            fs.Close();
+            // File.WriteAllText(filePath, newFileJson);
+            AssetDatabase.Refresh();
         }
         
         private void OnExpandButtonClicked()
@@ -321,15 +420,60 @@ namespace LazyRedpaw.GenericParameters
         {
             bool objectChanged = false;
             SerializedProperty property = serializedObject.GetIterator();
-            while (property.NextVisible(true))
+            if (newType == null)
             {
-                SerializedProperty hashProp = property.FindPropertyRelative(HashPropName);
-                if (hashProp != null && hashProp.intValue == hash)
+                while (property.NextVisible(true))
                 {
-                    property.managedReferenceValue = Activator.CreateInstance(newType, hash);
-                    objectChanged = true;
+                    if (property.type == nameof(Constants.CategoriesList))
+                    {
+                        SerializedProperty categoriesProp = property.FindPropertyRelative(CategoriesPropName);
+                        for (int i = 0; i < categoriesProp.arraySize; i++)
+                        {
+                            SerializedProperty categoryProp = categoriesProp.GetArrayElementAtIndex(i);
+                            SerializedProperty hashProp = categoryProp.FindPropertyRelative(HashPropName);
+                            if (hashProp.intValue == hash)
+                            {
+                                categoriesProp.DeleteArrayElementAtIndex(i);
+                                objectChanged = true;
+                                break;
+                            }
+                        }
+
+                        if (!objectChanged)
+                        {
+                            for (int i = 0; i < categoriesProp.arraySize; i++)
+                            {
+                                SerializedProperty categoryProp = categoriesProp.GetArrayElementAtIndex(i);
+                                SerializedProperty parametersProp = categoryProp.FindPropertyRelative(ParametersPropName);
+                                for (int j = 0; j < parametersProp.arraySize; j++)
+                                {
+                                    SerializedProperty parameterProp = parametersProp.GetArrayElementAtIndex(j);
+                                    SerializedProperty hashProp = parameterProp.FindPropertyRelative(HashPropName);
+                                    if (hashProp.intValue == hash)
+                                    {
+                                        parametersProp.DeleteArrayElementAtIndex(j);
+                                        objectChanged = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+            else
+            {
+                while (property.NextVisible(true))
+                {
+                    SerializedProperty hashProp = property.FindPropertyRelative(HashPropName);
+                    if (hashProp != null && hashProp.intValue == hash)
+                    {
+                        property.managedReferenceValue = Activator.CreateInstance(newType, hash);
+                        objectChanged = true;
+                    }
+                }
+            }
+
             if (objectChanged) serializedObject.ApplyModifiedProperties();
             return objectChanged;
         }

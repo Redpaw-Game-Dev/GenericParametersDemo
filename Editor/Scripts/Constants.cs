@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -47,6 +48,8 @@ namespace LazyRedpaw.GenericParameters
         public const string AddCategoryContainer = "AddCategoryContainer";
         
         public const string HashPropName = "_hash";
+        public const string CategoriesPropName = "_categories";
+        public const string ParametersPropName = "_parameters";
         
         public const string AlignHorizontal = "align-horizontal";
         public const string FlexGrow = "flex-grow";
@@ -60,8 +63,6 @@ namespace LazyRedpaw.GenericParameters
         public const string ModableParam = "modable-param";
         public const string ModableParamLabel = "modable-param-label";
         public const string ParamListItem = "param-list-item";
-        
-        public static readonly string GenericParametersJsonFilePath = Path.Combine(Application.dataPath, "Settings/LazyRedpaw/GenericParameters.json");
 
         public static readonly List<string> NoAvailableChoices = new() { "There is no available option" };
         public const string NullParameterText = "Parameter is null";
@@ -82,6 +83,23 @@ namespace LazyRedpaw.GenericParameters
                 marginTop = 3,
                 flexGrow = 1
             }
+        };
+        
+        public static readonly string GenericParametersJsonFilePath = Path.Combine(Application.dataPath, "Scripts/LazyRedpaw/GenericParameters/GenericParametersStorage.cs");
+        public const int JsonRowIndex = 6;
+        public static readonly Regex JsonRegex = new Regex("^\"(.*)\"$");
+        
+        public static readonly string[] StorageTemplate = new string[]
+        {
+            "//This file was generated automatically. Do not change it manually!",
+            "namespace LazyRedpaw.GenericParameters",
+            "{",
+            "\tpublic static class GenericParametersStorage",
+            "\t{",
+            "\t\tpublic const string Json =",
+            // "\t\t\tstring.Empty;",
+            "\t}",
+            "}"
         };
     }
 }
