@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -17,32 +18,24 @@ namespace LazyRedpaw.GenericParameters
         private static readonly VisualTreeAsset CategoriesListTreeAsset;
         private static readonly VisualTreeAsset ListItemTreeAsset;
 
-        private static readonly Dictionary<string, CategoryJson> CategoriesJsonMap;
+        // private static readonly List<CategoryJson> CategoriesJsonList;
+        // private static readonly Dictionary<string, CategoryJson> CategoriesJsonMap;
 
         static CategoriesListDrawer()
         {
             CategoriesListTreeAsset = Resources.Load<VisualTreeAsset>("CategoriesUXML");
             ListItemTreeAsset = Resources.Load<VisualTreeAsset>("CategoryListItemUXML");
 
-            if (!File.Exists(GenericParametersJsonFilePath))
-            {
-                string directory = Path.GetDirectoryName(GenericParametersJsonFilePath);
-                if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-                File.Create(GenericParametersJsonFilePath).Close();
-                MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
-                string newFileJson = JsonConvert.SerializeObject(mainJson);
-                File.WriteAllText(GenericParametersJsonFilePath, newFileJson);
-                AssetDatabase.Refresh();
-            }
+
             
-            string json = File.ReadAllText(GenericParametersJsonFilePath);
-            List<CategoryJson> categoriesJson = JsonConvert.DeserializeObject<MainJson>(json).Categories;
-            CategoriesJsonMap = new Dictionary<string, CategoryJson>();
-            for (int i = 0; i < categoriesJson.Count; i++)
-            {
-                CategoryJson category = categoriesJson[i];
-                CategoriesJsonMap.Add(GetCategoryName(category.Hash), category);
-            }
+            // string json = File.ReadAllText(GenericParametersJsonFilePath);
+            // List<CategoryJson> categoriesJson = JsonConvert.DeserializeObject<MainJson>(json).Categories;
+            // CategoriesJsonMap = new Dictionary<string, CategoryJson>();
+            // for (int i = 0; i < categoriesJson.Count; i++)
+            // {
+            //     CategoryJson category = categoriesJson[i];
+            //     CategoriesJsonMap.Add(GetCategoryName(category.Hash), category);
+            // }
         }
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -51,6 +44,59 @@ namespace LazyRedpaw.GenericParameters
 
             VisualElement root = new VisualElement();
             // root.styleSheets.Add(_styleUSS);
+            
+            // if (!File.Exists(GenericParametersJsonFilePath))
+            // {
+            //     string directory = Path.GetDirectoryName(GenericParametersJsonFilePath);
+            //     if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+            //     File.Create(GenericParametersJsonFilePath).Close();
+            //     MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
+            //     string newFileJson = JsonConvert.SerializeObject(mainJson);
+            //     File.WriteAllText(GenericParametersJsonFilePath, newFileJson);
+            //     AssetDatabase.SaveAssets();
+            //     // AssetDatabase.Refresh();
+            // }
+            string json = string.Empty;
+            if (!File.Exists(GenericParametersJsonFilePath))
+            {
+                string directory = Path.GetDirectoryName(GenericParametersJsonFilePath);
+                if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                File.Create(GenericParametersJsonFilePath).Close();
+                MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
+                json = JsonConvert.SerializeObject(mainJson);
+                string jsonForFile = json;
+                for (int i = 0; i < jsonForFile.Length; i++)
+                {
+                    if (jsonForFile[i] == '"')
+                    {
+                        jsonForFile = jsonForFile.Insert(i, "\\");
+                        i++;
+                    }
+                }
+                List<string> lines = new List<string>(StorageTemplate);
+                lines.Insert(JsonRowIndex, $"\"{jsonForFile}\";");
+                File.WriteAllLines(GenericParametersJsonFilePath, lines);
+                AssetDatabase.Refresh();
+            }
+            else
+            {
+                string[] lines = File.ReadAllLines(GenericParametersJsonFilePath);
+                int startIndex = lines[JsonRowIndex].IndexOf("\"", StringComparison.Ordinal);
+                int endIndex = lines[JsonRowIndex].LastIndexOf("\"", StringComparison.Ordinal);
+                string value = lines[JsonRowIndex].Substring(startIndex + 1, endIndex - startIndex - 1);
+                json = value.Replace("\\", "");
+            }
+            List<CategoryJson> categoriesJsonList = JsonConvert.DeserializeObject<MainJson>(json).Categories;
+            AssetDatabase.Refresh();
+            // string json = File.ReadAllText(GenericParametersJsonFilePath);
+            // List<CategoryJson> categoriesJsonList = JsonConvert.DeserializeObject<MainJson>(json).Categories;
+            
+            Dictionary<string, CategoryJson> categoriesJsonMap = new Dictionary<string, CategoryJson>();
+            for (int i = 0; i < categoriesJsonList.Count; i++)
+            {
+                CategoryJson category = categoriesJsonList[i];
+                categoriesJsonMap.Add(GetCategoryName(category.Hash), category);
+            }
             
             SerializedProperty categoriesProp = property.FindPropertyRelative("_categories");
             UpdateAvailableNames();
@@ -96,7 +142,7 @@ namespace LazyRedpaw.GenericParameters
 
             void OnAddButtonClicked()
             {
-                CreateNewElement(CategoriesJsonMap[popupField.value]);
+                CreateNewElement(categoriesJsonMap[popupField.value]);
                 UpdatePopupField();
                 ResetList();
             }
@@ -207,17 +253,23 @@ namespace LazyRedpaw.GenericParameters
             void UpdateAvailableNames()
             {
                 categoriesProp.serializedObject.Update();
-                List<int> hashes = new List<int>(CategoryIdsArray);
+                List<CategoryJson> categoryJsons = new List<CategoryJson>(categoriesJsonMap.Values);
                 for (int i = 0; i < categoriesProp.arraySize; i++)
                 {
                     SerializedProperty element = categoriesProp.GetArrayElementAtIndex(i);
-                    hashes.Remove(element.FindPropertyRelative(HashPropName).intValue);
+                    for (int j = categoryJsons.Count - 1; j >= 0; j--)
+                    {
+                        if (categoryJsons[j].Hash == element.FindPropertyRelative(HashPropName).intValue)
+                        {
+                            categoryJsons.RemoveAt(j);
+                        }
+                    }
                 }
 
                 availableNames.Clear();
-                for (int i = 0; i < hashes.Count; i++)
+                for (int i = 0; i < categoryJsons.Count; i++)
                 {
-                    availableNames.Add(GetCategoryName(hashes[i]));
+                    availableNames.Add(GetCategoryName(categoryJsons[i].Hash));
                 }
             }
             return root;
