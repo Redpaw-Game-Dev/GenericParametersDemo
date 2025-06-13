@@ -76,8 +76,6 @@ namespace LazyRedpaw.GenericParameters
 
         private void LoadJson()
         {
-            // if (!IsFileExisting(GenericParametersJsonFilePath)) CreateFile(GenericParametersJsonFilePath);
-            // string json = File.ReadAllText(GenericParametersJsonFilePath);
             string json = string.Empty;
             if (!File.Exists(GenericParametersJsonFilePath))
             {
@@ -109,11 +107,6 @@ namespace LazyRedpaw.GenericParameters
                 json = value.Replace("\\", "");
             }
             _categoryJsons = JsonConvert.DeserializeObject<MainJson>(json).Categories;
-            // AssetDatabase.Refresh();
-            // byte[] buffer = new byte[fs.Length];
-            // fs.Read(buffer, 0, buffer.Length);
-            // fs.Close();
-            // string json = Encoding.UTF8.GetString(buffer);
             for (int i = 0; i < _categoryJsons.Count; i++)
             {
                 LoadCategory(_categoryJsons[i]);
@@ -166,19 +159,6 @@ namespace LazyRedpaw.GenericParameters
                 }
             }
             
-            // for (int i = 0; i < _categories.Count; i++)
-            // {
-            //     CategoryElement category = _categories[i];
-            //     for (int j = 0; j < category.Parameters.Count; j++)
-            //     {
-            //         ParameterElement parameter = category.Parameters[j];
-            //         if (parameter.IsTypeChanged)
-            //         {
-            //             UpdateParameterFields(parameter.Hash, Type.GetType(parameter.AssemblyQualifiedName));
-            //         }
-            //     }
-            // }
-            
             MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -199,25 +179,6 @@ namespace LazyRedpaw.GenericParameters
             AssetDatabase.Refresh();
         }
 
-        private bool IsFileExisting(string filePath)
-        {
-            return File.Exists(filePath);
-        }
-        
-        private void CreateFile(string filePath)
-        {
-            string directory = Path.GetDirectoryName(filePath);
-            if(!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-            FileStream fs = File.Create(filePath);
-            MainJson mainJson = new MainJson() { Categories = new List<CategoryJson>() };
-            string newFileJson = JsonConvert.SerializeObject(mainJson);
-            byte[] bytes = Encoding.UTF8.GetBytes(newFileJson);
-            fs.Write(bytes, 0, bytes.Length);
-            fs.Close();
-            // File.WriteAllText(filePath, newFileJson);
-            AssetDatabase.Refresh();
-        }
-        
         private void OnExpandButtonClicked()
         {
             if (_isExpanded)

@@ -81,15 +81,20 @@ namespace LazyRedpaw.GenericParameters
                 typeNamesList.Add(parentType.Name);
                 typesList.Add(parentType);
             }
-            Type[] allTypes = Assembly.GetAssembly(parentType).GetTypes();
-            for (int i = 0; i < allTypes.Length; i++)
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            for (int i = 0; i < assemblies.Length; i++)
             {
-                if (allTypes[i].IsClass &&
-                    !allTypes[i].IsAbstract &&
-                    allTypes[i].IsSubclassOf(parentType))
+                Assembly assembly = assemblies[i];
+                Type[] allTypes = assembly.GetTypes();
+                for (int j = 0; j < allTypes.Length; j++)
                 {
-                    typeNamesList.Add(allTypes[i].Name);
-                    typesList.Add(allTypes[i]);
+                    if (allTypes[j].IsClass &&
+                        !allTypes[j].IsAbstract &&
+                        allTypes[j].IsSubclassOf(parentType))
+                    {
+                        typeNamesList.Add(allTypes[j].Name);
+                        typesList.Add(allTypes[j]);
+                    }
                 }
             }
             types = typesList.ToArray();
