@@ -1,7 +1,7 @@
 {
   "name": "com.lazyredpaw.genericparametersdemo",
   "displayName": "Generic Parameters Demo",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "unity": "2022.3",
   "type": "plugin",
   "author": {

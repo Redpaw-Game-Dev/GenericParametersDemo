@@ -147,9 +147,9 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
 
-        public T GetParamCopy<T>(int hash) where T : Category => (T)GetParamCopy(hash);
+        public T GetCategoryCopy<T>(int hash) where T : Category => (T)GetCategoryCopy(hash);
 
-        public Category GetParamCopy(int hash)
+        public Category GetCategoryCopy(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
