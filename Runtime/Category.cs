@@ -15,9 +15,9 @@ namespace LazyRedpaw.GenericParameters
         public Parameter this[int i] => _parameters[i];
         public int Count => _parameters.Count;
 
-        public event Action<Parameter> OnParamAdded;
-        public event Action<Parameter> OnParamRemoved;
-        public event Action<Parameter, Parameter> OnParamReplaced;
+        public event Action<Parameter> ParamAdded;
+        public event Action<Parameter> ParamRemoved;
+        public event Action<Parameter, Parameter> ParamReplaced;
         
         public Category()
         {
@@ -127,7 +127,7 @@ namespace LazyRedpaw.GenericParameters
             if (!IsContainingParam(value.Hash))
             {
                 _parameters.Add(value);
-                OnParamAdded?.Invoke(value);
+                ParamAdded?.Invoke(value);
             }
         }
         
@@ -145,7 +145,9 @@ namespace LazyRedpaw.GenericParameters
             {
                 if (_parameters[i].Hash == newValue.Hash)
                 {
+                    Parameter replacedParam = _parameters[i];
                     _parameters[i] = newValue;
+                    ParamReplaced?.Invoke(replacedParam, newValue);
                     return;
                 }
             }
@@ -167,12 +169,12 @@ namespace LazyRedpaw.GenericParameters
                 {
                     Parameter replacedParam = _parameters[i];
                     _parameters[i] = newValue;
-                    OnParamReplaced?.Invoke(replacedParam, newValue);
+                    ParamReplaced?.Invoke(replacedParam, newValue);
                     return;
                 }
             }
             _parameters.Add(newValue);
-            OnParamAdded?.Invoke(newValue);
+            ParamAdded?.Invoke(newValue);
         }
         
         public void ReplaceOrAddParams(List<Parameter> newValues)
@@ -193,7 +195,7 @@ namespace LazyRedpaw.GenericParameters
                 {
                     Parameter removedParam = _parameters[i];
                     _parameters.RemoveAt(i);
-                    OnParamRemoved?.Invoke(removedParam);
+                    ParamRemoved?.Invoke(removedParam);
                     return true;
                 }
             }
@@ -223,11 +225,11 @@ namespace LazyRedpaw.GenericParameters
         
         public void RemoveParamAt(int index)
         {
-            if (index > 0 && index < Count)
+            if (index >= 0 && index < Count)
             {
                 Parameter removedParam = _parameters[index];
                 _parameters.RemoveAt(index);
-                OnParamRemoved?.Invoke(removedParam);
+                ParamRemoved?.Invoke(removedParam);
             }
         }
         
@@ -235,9 +237,7 @@ namespace LazyRedpaw.GenericParameters
         {
             for (int i = _parameters.Count - 1; i >= 0; i--)
             {
-                Parameter removedParam = _parameters[i];
-                _parameters.RemoveAt(i);
-                OnParamRemoved?.Invoke(removedParam);
+                RemoveParamAt(i);
             }
         }
         

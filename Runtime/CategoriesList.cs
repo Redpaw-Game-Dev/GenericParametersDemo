@@ -13,9 +13,12 @@ namespace LazyRedpaw.GenericParameters
         public Category this[int i] => _categories[i];
         public int Count => _categories.Count;
 
-        public event Action<Category> OnCategoryAdded;
-        public event Action<Category> OnCategoryRemoved;
-        public event Action<Category, Category> OnCategoryReplaced;
+        public event Action<Category> CategoryAdded;
+        public event Action<Category> CategoryRemoved;
+        public event Action<Category, Category> CategoryReplaced;
+        public event Action<Parameter, Category> ParameterAdded;
+        public event Action<Parameter, Category> ParameterRemoved;
+        public event Action<Parameter, Parameter, Category> ParameterReplaced;
         
         public CategoriesList()
         {
@@ -120,7 +123,10 @@ namespace LazyRedpaw.GenericParameters
             if (!IsContainingCategory(value.Hash))
             {
                 _categories.Add(value);
-                OnCategoryAdded?.Invoke(value);
+                value.ParamAdded += param => ParameterAdded?.Invoke(param, value);
+                value.ParamRemoved += param => ParameterRemoved?.Invoke(param, value);
+                value.ParamReplaced += (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, value);
+                CategoryAdded?.Invoke(value);
             }
         }
         
@@ -138,7 +144,15 @@ namespace LazyRedpaw.GenericParameters
             {
                 if (_categories[i].Hash == newValue.Hash)
                 {
+                    Category replacedCategory = _categories[i];
+                    replacedCategory.ParamAdded -= param => ParameterAdded?.Invoke(param, replacedCategory);
+                    replacedCategory.ParamRemoved -= param => ParameterRemoved?.Invoke(param, replacedCategory);
+                    replacedCategory.ParamReplaced -= (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, replacedCategory);
                     _categories[i] = newValue;
+                    newValue.ParamAdded += param => ParameterAdded?.Invoke(param, newValue);
+                    newValue.ParamRemoved += param => ParameterRemoved?.Invoke(param, newValue);
+                    newValue.ParamReplaced += (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, newValue);
+                    CategoryReplaced?.Invoke(replacedCategory, newValue);
                     return;
                 }
             }
@@ -159,13 +173,19 @@ namespace LazyRedpaw.GenericParameters
                 if (_categories[i].Hash == newValue.Hash)
                 {
                     Category replacedCategory = _categories[i];
+                    replacedCategory.ParamAdded -= param => ParameterAdded?.Invoke(param, replacedCategory);
+                    replacedCategory.ParamRemoved -= param => ParameterRemoved?.Invoke(param, replacedCategory);
+                    replacedCategory.ParamReplaced -= (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, replacedCategory);
                     _categories[i] = newValue;
-                    OnCategoryReplaced?.Invoke(replacedCategory, newValue);
+                    newValue.ParamAdded += param => ParameterAdded?.Invoke(param, newValue);
+                    newValue.ParamRemoved += param => ParameterRemoved?.Invoke(param, newValue);
+                    newValue.ParamReplaced += (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, newValue);
+                    CategoryReplaced?.Invoke(replacedCategory, newValue);
                     return;
                 }
             }
             _categories.Add(newValue);
-            OnCategoryAdded?.Invoke(newValue);
+            CategoryAdded?.Invoke(newValue);
         }
         
         public void ReplaceOrAddCategories(List<Category> newValues)
@@ -185,8 +205,11 @@ namespace LazyRedpaw.GenericParameters
                 if (hash == _categories[i].Hash)
                 {
                     Category removedCategory = _categories[i];
+                    removedCategory.ParamAdded -= param => ParameterAdded?.Invoke(param, removedCategory);
+                    removedCategory.ParamRemoved -= param => ParameterRemoved?.Invoke(param, removedCategory);
+                    removedCategory.ParamReplaced -= (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, removedCategory);
                     _categories.RemoveAt(i);
-                    OnCategoryRemoved?.Invoke(removedCategory);
+                    CategoryRemoved?.Invoke(removedCategory);
                     return true;
                 }
             }
@@ -216,11 +239,14 @@ namespace LazyRedpaw.GenericParameters
         
         public void RemoveCategoryAt(int index)
         {
-            if (index > 0 && index < Count)
+            if (index >= 0 && index < Count)
             {
                 Category removedCategory = _categories[index];
+                removedCategory.ParamAdded -= param => ParameterAdded?.Invoke(param, removedCategory);
+                removedCategory.ParamRemoved -= param => ParameterRemoved?.Invoke(param, removedCategory);
+                removedCategory.ParamReplaced -= (replacedParam, newParam) => ParameterReplaced?.Invoke(replacedParam, newParam, removedCategory);
                 _categories.RemoveAt(index);
-                OnCategoryRemoved?.Invoke(removedCategory);
+                CategoryRemoved?.Invoke(removedCategory);
             }
         }
         
@@ -228,9 +254,7 @@ namespace LazyRedpaw.GenericParameters
         {
             for (int i = _categories.Count - 1; i >= 0; i--)
             {
-                Category removedCategory = _categories[i];
-                _categories.RemoveAt(i);
-                OnCategoryRemoved?.Invoke(removedCategory);
+                RemoveCategoryAt(i);
             }
         }
         
