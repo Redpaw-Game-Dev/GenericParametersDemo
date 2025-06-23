@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace LazyRedpaw.GenericParameters
 {
@@ -21,11 +22,13 @@ namespace LazyRedpaw.GenericParameters
             _categories = new List<Category>();
         }
 
-        public Category Get(int index) => this[index];
+        public List<Category> GetAllCategories() => new List<Category>(_categories);
+
+        public Category GetCategory(int index) => this[index];
         
-        public T Get<T>(int index) where T : Category => (T)this[index];
+        public T GetCategory<T>(int index) where T : Category => (T)this[index];
         
-        public Category GetByHash(int hash)
+        public Category GetCategoryByHash(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -34,9 +37,31 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
-        public T GetByHash<T>(int hash) where T : Category => (T)GetByHash(hash);
+        public T GetCategoryByHash<T>(int hash) where T : Category => (T)GetCategoryByHash(hash);
         
-        public bool TryGetByHash(int hash, out Category category)
+        public List<Category> GetCategoriesByHash(int[] hashes)
+        {
+            if (hashes == null) return null;
+            List<Category> result = new List<Category>();
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                result.Add(GetCategoryByHash(hashes[i]));
+            }
+            return result;
+        }
+        
+        public List<T> GetCategoriesByHash<T>(int[] hashes) where T : Category
+        {
+            if (hashes == null) return null;
+            List<T> result = new List<T>();
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                result.Add(GetCategoryByHash<T>(hashes[i]));
+            }
+            return result;
+        }
+        
+        public bool TryGetCategoryByHash(int hash, out Category category)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -50,7 +75,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool TryGetByHash<T>(int hash, out T category) where T : Category
+        public bool TryGetCategoryByHash<T>(int hash, out T category) where T : Category
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -63,17 +88,51 @@ namespace LazyRedpaw.GenericParameters
             category = null;
             return false;
         }
-
-        public void Add(Category value)
+        
+        public bool[] TryGetCategoriesByHash(int[] hashes, out List<Category> categories)
         {
-            if (!IsContaining(value.Hash))
+            categories = new List<Category>();
+            if (hashes == null) return null;
+            bool[] isFound = new bool[hashes.Length];
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                categories.Add(GetCategoryByHash(hashes[i]));
+                isFound[i] = categories[i] != null;
+            }
+            return isFound;
+        }
+        
+        public bool[] TryGetCategoriesByHash<T>(int[] hashes, out List<T> categories) where T : Category
+        {
+            categories = new List<T>();
+            if (hashes == null) return null;
+            bool[] isFound = new bool[hashes.Length];
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                categories.Add(GetCategoryByHash<T>(hashes[i]));
+                isFound[i] = categories[i] != null;
+            }
+            return isFound;
+        }
+
+        public void AddCategory(Category value)
+        {
+            if (!IsContainingCategory(value.Hash))
             {
                 _categories.Add(value);
                 OnCategoryAdded?.Invoke(value);
             }
         }
         
-        public void Replace(Category newValue)
+        public void AddCategories(List<Category> values)
+        {
+            for (var i = 0; i < values.Count; i++)
+            {
+                AddCategory(values[i]);
+            }
+        }
+        
+        public void ReplaceCategory(Category newValue)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -85,7 +144,15 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceOrAdd(Category newValue)
+        public void ReplaceCategories(List<Category> newValues)
+        {
+            for (int i = 0; i < newValues.Count; i++)
+            {
+                ReplaceCategory(newValues[i]);
+            }
+        }
+        
+        public void ReplaceOrAddCategory(Category newValue)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -101,9 +168,17 @@ namespace LazyRedpaw.GenericParameters
             OnCategoryAdded?.Invoke(newValue);
         }
         
-        public bool Remove(Category value) => Remove(value.Hash);
+        public void ReplaceOrAddCategories(List<Category> newValues)
+        {
+            for (int i = 0; i < newValues.Count; i++)
+            {
+                ReplaceOrAddCategory(newValues[i]);
+            }
+        }
         
-        public bool Remove(int hash)
+        public bool RemoveCategory(Category value) => RemoveCategory(value.Hash);
+        
+        public bool RemoveCategory(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -118,7 +193,28 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public void RemoveAt(int index)
+        public bool[] RemoveCategories(List<Category> values)
+        {
+            bool[] isRemoved = new bool[values.Count];
+            for (int i = 0; i < values.Count; i++)
+            {
+                isRemoved[i] |= RemoveCategory(values[i].Hash);
+            }
+            return isRemoved;
+        }
+        
+        public bool[] RemoveCategories(int[] hashes)
+        {
+            if (hashes == null || hashes.Length == 0) return null;
+            bool[] isRemoved = new bool[hashes.Length];
+            for (var i = 0; i < hashes.Length; i++)
+            {
+                isRemoved[i] |= RemoveCategory(hashes[i]);
+            }
+            return isRemoved;
+        }
+        
+        public void RemoveCategoryAt(int index)
         {
             if (index > 0 && index < Count)
             {
@@ -128,7 +224,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void RemoveAll()
+        public void RemoveAllCategories()
         {
             for (int i = _categories.Count - 1; i >= 0; i--)
             {
@@ -138,13 +234,24 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public bool IsContaining(int hash)
+        public bool IsContainingCategory(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
                 if (hash == _categories[i].Hash) return true;
             }
             return false;
+        }
+        
+        public bool[] IsContainingCategories(int[] hashes)
+        {
+            if (hashes == null || hashes.Length == 0) return null;
+            bool[] isContaining = new bool[hashes.Length];
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                isContaining[i] |= IsContainingCategory(hashes[i]);
+            }
+            return isContaining;
         }
 
         public T GetCategoryCopy<T>(int hash) where T : Category => (T)GetCategoryCopy(hash);
@@ -155,10 +262,32 @@ namespace LazyRedpaw.GenericParameters
             {
                 if (hash == _categories[i].Hash)
                 {
-                    return _categories[i].Copy();
+                    return _categories[i].CopyCategory();
                 }
             }
             return null;
+        }
+        
+        public IEnumerable<T> GetCategoriesCopy<T>(int[] hashes) where T : Category
+        {
+            if (hashes == null || hashes.Length == 0) return null;
+            List<T> result = new List<T>();
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                result.Add(GetCategoryCopy<T>(hashes[i]));
+            }
+            return result;
+        }
+
+        public IEnumerable<Category> GetCategoriesCopy(int[] hashes)
+        {
+            if (hashes == null || hashes.Length == 0) return null;
+            List<Category> result = new List<Category>();
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                result.Add(GetCategoryCopy(hashes[i]));
+            }
+            return result;
         }
     }
 }
