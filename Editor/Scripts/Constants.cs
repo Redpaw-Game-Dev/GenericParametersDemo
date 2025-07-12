@@ -34,6 +34,7 @@ namespace LazyRedpaw.GenericParameters
         public const string ParametersFoldout = "ParametersFoldout";
         public const string ParameterHashDropdown = "ParameterNameDropdown";
         public const string ParameterTypeDropdown = "ParameterTypeDropdown";
+        public const string CategoryTypeDropdown = "CategoryTypeDropdown";
         public const string RevertButton = "RevertButton";
         public const string DeleteButton = "DeleteButton";
         public const string AddButton = "AddButton";

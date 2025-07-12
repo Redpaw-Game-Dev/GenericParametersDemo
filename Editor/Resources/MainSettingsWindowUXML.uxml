@@ -4,6 +4,7 @@
         <engine:Button text="SAVE" name="SaveButtonTmp" class="button-save-tmp" />
         <engine:VisualElement name="CreateCategoryArea" class="align-horizontal" style="flex-grow: 0; align-items: stretch;">
             <engine:DropdownField name="NewCategoryNameDropdown" class="flex-grow" />
+            <engine:DropdownField name="CategoryTypeDropdown" class="flex-grow" />
             <engine:Button text="Create Category" name="CreateCategoryButton" />
         </engine:VisualElement>
         <engine:VisualElement name="CategoriesArea" style="flex-direction: column; flex-wrap: nowrap; flex-grow: 1;">

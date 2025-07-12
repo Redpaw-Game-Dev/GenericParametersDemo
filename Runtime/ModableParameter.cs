@@ -11,12 +11,12 @@ namespace LazyRedpaw.GenericParameters
     {
         [SerializeReference] protected List<Mod> _mods;
 
-        private readonly ReadOnlyCollection<Mod> _readOnlyMods;
-        private bool _isChanged = true;
+        protected readonly ReadOnlyCollection<Mod> _readOnlyMods;
+        protected bool _isChanged = true;
 
-        public ReadOnlyCollection<Mod> Mods => _readOnlyMods;
+        public virtual ReadOnlyCollection<Mod> Mods => _readOnlyMods;
 
-        protected bool IsChanged
+        protected virtual bool IsChanged
         {
             get => _isChanged;
             set
@@ -47,7 +47,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
 
-        public List<Mod> CopyMods() => new(_mods);
+        public virtual List<Mod> CopyMods() => new(_mods);
         
         public virtual void AddMod(Mod mod)
         {
@@ -149,7 +149,7 @@ namespace LazyRedpaw.GenericParameters
         [SerializeField] protected TValue _baseValue;
         [SerializeField] protected TValue _value;
 
-        public TValue BaseValue
+        public virtual TValue BaseValue
         {
             get => _baseValue;
             protected set
@@ -159,7 +159,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public TValue Value
+        public virtual TValue Value
         {
             get
             {
@@ -210,9 +210,9 @@ namespace LazyRedpaw.GenericParameters
 
         public abstract void AddToBaseValue(TValue value);
         
-        public TValue GetBaseValue() => _baseValue;
+        public virtual TValue GetBaseValue() => _baseValue;
 
-        public void SetBaseValue(TValue value)
+        public virtual void SetBaseValue(TValue value)
         {
             BaseValue = value;
 #if UNITY_EDITOR

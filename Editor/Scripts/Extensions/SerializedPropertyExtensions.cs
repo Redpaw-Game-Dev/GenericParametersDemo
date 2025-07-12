@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace LazyRedpaw.GenericParameters
 {
@@ -144,7 +146,7 @@ namespace LazyRedpaw.GenericParameters
 
                 if (element == "Array" && i + 1 < elements.Length && elements[i + 1].StartsWith("data["))
                 {
-                    i++; // Skip "data[index]"
+                    i++;
                     if (IsList(currentType, out Type elementType))
                         currentType = elementType;
                     else if (currentType.IsArray)
@@ -160,7 +162,6 @@ namespace LazyRedpaw.GenericParameters
 
                 currentType = field.FieldType;
 
-                // Handle SerializeReference polymorphic type
                 if (i == elements.Length - 1 && property.propertyType == SerializedPropertyType.ManagedReference)
                 {
                     string typename = property.managedReferenceFullTypename;
@@ -206,6 +207,69 @@ namespace LazyRedpaw.GenericParameters
 
             elementType = null;
             return false;
+        }
+        
+        public static Type GetManagedReferenceType(this SerializedProperty property)
+        {
+            var fullTypeName = property.managedReferenceFullTypename;
+            if (string.IsNullOrEmpty(fullTypeName))
+                return null;
+
+            // Split into assembly and class name
+            var parts = fullTypeName.Split(' ');
+            if (parts.Length != 2)
+                return null;
+
+            string assemblyName = parts[0];
+            string className = parts[1];
+
+            // Try to get the assembly
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => a.GetName().Name == assemblyName);
+
+            if (assembly == null)
+            {
+                Debug.LogWarning($"Assembly '{assemblyName}' not found.");
+                return null;
+            }
+
+            // Get the type
+            var type = assembly.GetType(className);
+            if (type == null)
+            {
+                Debug.LogWarning($"Type '{className}' not found in assembly '{assemblyName}'.");
+            }
+
+            return type;
+            
+            // string managedRefTypeStr = property.type;
+            // const string prefix = "managedReference<";
+            // const string suffix = ">";
+            //
+            // if (managedRefTypeStr.StartsWith(prefix) && managedRefTypeStr.EndsWith(suffix))
+            // {
+            //     string typeName = property.type.Substring(
+            //         prefix.Length,
+            //         property.type.Length - prefix.Length - suffix.Length
+            //     );
+            //
+            //     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            //     for (int i = 0; i < assemblies.Length; i++)
+            //     {
+            //         Assembly assembly = assemblies[i];
+            //         Type[] types = assembly.GetTypes();
+            //         for (int j = 0; j < types.Length; j++)
+            //         {
+            //             Type type = types[j];
+            //             if (type.Name == typeName)
+            //             {
+            //                 return type;
+            //             }
+            //         }
+            //     }
+            // }
+            //
+            // return null;
         }
     }
 }

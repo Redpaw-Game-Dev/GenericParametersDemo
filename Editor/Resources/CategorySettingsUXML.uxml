@@ -4,6 +4,7 @@
         <engine:VisualElement name="CategoryHeader" class="align-horizontal">
             <engine:Button name="ExpandCategoryButton" class="foldout-arrow" />
             <engine:Label text="Label" name="CategoryNameLabel" class="flex-grow text-align-middle" />
+            <engine:DropdownField name="CategoryTypeDropdown" class="flex-grow category-dropdown" />
             <engine:Button text="X" name="DeleteButton" class="error-text-color" />
         </engine:VisualElement>
         <engine:VisualElement name="CategoryContent" style="flex-grow: 1; margin-left: 14px;">

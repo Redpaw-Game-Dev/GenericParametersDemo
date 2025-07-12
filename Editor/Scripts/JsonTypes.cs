@@ -14,6 +14,7 @@ namespace LazyRedpaw.GenericParameters
     public class CategoryJson
     {
         public int Hash;
+        public string AssemblyQualifiedName;
         public List<ParameterJson> Parameters;
     }
     

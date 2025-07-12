@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 using static LazyRedpaw.GenericParameters.Constants;
 using static LazyRedpaw.StaticHashes.StaticHashesHelper;
@@ -14,6 +12,7 @@ namespace LazyRedpaw.GenericParameters
         private readonly VisualTreeAsset _parameterUXML;
         private readonly DropdownField _newParameterNameDropdown;
         private readonly DropdownField _newParameterTypeDropdown;
+        private readonly DropdownField _categoryTypeDropdown;
         private readonly Button _deleteButton;
         // private readonly Button _revertButton;
         private readonly Button _createParameterButton;
@@ -24,22 +23,29 @@ namespace LazyRedpaw.GenericParameters
         private readonly int _hash;
         private readonly List<Type> _parameterTypes;
         private readonly List<string> _parameterTypeNames;
+        private readonly List<Type> _categoryTypes;
+        private readonly List<string> _categoryTypeNames;
         private readonly List<string> _availableParameterNames;
         private readonly List<int> _availableParameterHashes;
         
         private List<ParameterElement> _parameters;
         // private List<ParameterElement> _deletedParameters;
         private bool _isExpanded;
+        private string _assemblyQualifiedName;
+        private string _savedTypeName;
 
         public VisualElement Root => _root;
         public List<ParameterElement> Parameters => _parameters;
         public string Name => _name;
         public int Hash => _hash;
+        public bool IsTypeChanged => _categoryTypeDropdown.value != _savedTypeName;
+        public string AssemblyQualifiedName => _assemblyQualifiedName;
         
         public event Action<CategoryElement> DeletionRequested; 
         
         public CategoryElement(string name, int hash, VisualElement root, List<Type> parameterTypes,
-            List<string> parameterTypeNames, VisualTreeAsset parameterUXML, List<ParameterJson> parameters = null)
+            List<string> parameterTypeNames, VisualTreeAsset parameterUXML, List<Type> categoryTypes,
+            List<string> categoryTypeNames, string typeName, string assemblyQualifiedName, List<ParameterJson> parameters = null)
         {
             _availableParameterNames = new List<string>();
             _availableParameterHashes = new List<int>();
@@ -51,10 +57,15 @@ namespace LazyRedpaw.GenericParameters
             _parameterTypes = parameterTypes;
             _parameterTypeNames =  parameterTypeNames;
             _parameterUXML = parameterUXML;
+            _categoryTypes = categoryTypes;
+            _categoryTypeNames = categoryTypeNames;
+            _savedTypeName = typeName;
+            _assemblyQualifiedName = assemblyQualifiedName;
             
             _root.Q<Label>(CategoryNameLabel).text = _name;
             _newParameterNameDropdown = _root.Q<DropdownField>(NewParameterNameDropdown);
             _newParameterTypeDropdown = _root.Q<DropdownField>(NewParameterTypeDropdown);
+            _categoryTypeDropdown = _root.Q<DropdownField>(CategoryTypeDropdown);
             _deleteButton = _root.Q<Button>(DeleteButton);
             // _revertButton = _root.Q<Button>(RevertButton);
             _createParameterButton = _root.Q<Button>(CreateParameterButton);
@@ -66,6 +77,9 @@ namespace LazyRedpaw.GenericParameters
 
             ProcessParametersCountChange();
             
+            _categoryTypeDropdown.choices = _categoryTypeNames;
+            _categoryTypeDropdown.SetValueWithoutNotify(typeName);
+            _categoryTypeDropdown.RegisterValueChangedCallback(OnCategoryTypeFieldChanged);
             _newParameterTypeDropdown.choices = _parameterTypeNames;
             _newParameterTypeDropdown.value = _parameterTypeNames[0];
             _deleteButton.clicked += OnDeleteButtonClicked;
@@ -82,7 +96,7 @@ namespace LazyRedpaw.GenericParameters
                 {
                     string parameterName = GetHashName(parameters[i].Hash);
                     Type parameterType = Type.GetType(parameters[i].AssemblyQualifiedName);
-                    AddNewParameter(parameterName, parameterType.Name, parameters[i].Hash);
+                    AddNewParameter(parameterName, parameterType, parameters[i].Hash);
                 }
             }
         }
@@ -92,6 +106,7 @@ namespace LazyRedpaw.GenericParameters
             CategoryJson categoryJson = new CategoryJson()
             {
                 Hash = _hash,
+                AssemblyQualifiedName = _assemblyQualifiedName,
                 Parameters = new List<ParameterJson>()
             };
             for (int i = 0; i < _parameters.Count; i++)
@@ -132,7 +147,8 @@ namespace LazyRedpaw.GenericParameters
         private void OnCreateParameterButtonClicked()
         {
             int paramHash = GetHashValue(_newParameterNameDropdown.value);
-            AddNewParameter(_newParameterNameDropdown.value, _newParameterTypeDropdown.value, paramHash);
+            Type paramType = GetTypeByName(_newParameterTypeDropdown.value);
+            AddNewParameter(_newParameterNameDropdown.value, paramType, paramHash);
             ProcessParametersCountChange();
             SortParameters();
         }
@@ -156,18 +172,18 @@ namespace LazyRedpaw.GenericParameters
             }
         }
 
-        private void AddNewParameter(string paramName, string typeName, int paramHash)
+        private void AddNewParameter(string paramName, Type paramType, int paramHash)
         {
             _parameterUXML.CloneTree(_parametersScrollView.contentContainer);
             VisualElement paramRoot = _parametersScrollView.contentContainer.Q<VisualElement>(ParameterRoot);
             paramRoot.name = paramName;
-            Type paramType = GetTypeByName(typeName);
+            // Type paramType = GetTypeByName(typeName);
             List<string> nameChoiceList = new List<string>(_availableParameterNames);
             for (int i = 0; i < _parameters.Count; i++)
             {
                 _parameters[i].RemoveNameFromChoiceList(paramName);
             }
-            ParameterElement newParam = new ParameterElement(paramRoot, paramHash, paramName, typeName, 
+            ParameterElement newParam = new ParameterElement(paramRoot, paramHash, paramName, paramType.Name, 
                 paramType.AssemblyQualifiedName, _parameterTypes, _parameterTypeNames, nameChoiceList);
             newParam.DeletionRequested += OnParameterItemDeletionRequested;
             newParam.NameChanged += OnParamNameChanged;
@@ -283,6 +299,19 @@ namespace LazyRedpaw.GenericParameters
                 if(_parameterTypes[i].Name == typeName) return _parameterTypes[i];
             }
             return null;
+        }
+        
+        private void OnCategoryTypeFieldChanged(ChangeEvent<string> evt)
+        {
+            if (evt.newValue != _savedTypeName) _categoryTypeDropdown.AddToClassList(ChangedBorder);
+            else _categoryTypeDropdown.RemoveFromClassList(ChangedBorder);
+            for (int i = 0; i < _categoryTypes.Count; i++)
+            {
+                if (_categoryTypes[i].Name == evt.newValue)
+                {
+                    _assemblyQualifiedName = _categoryTypes[i].AssemblyQualifiedName;
+                }
+            }
         }
     }
 }

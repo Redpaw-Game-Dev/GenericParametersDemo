@@ -10,28 +10,28 @@ namespace LazyRedpaw.GenericParameters
     {
         [SerializeReference] protected List<Category> _categories;
         
-        public Category this[int i] => _categories[i];
-        public int Count => _categories.Count;
+        public virtual Category this[int i] => _categories[i];
+        public virtual int Count => _categories.Count;
 
-        public event Action<Category> CategoryAdded;
-        public event Action<Category> CategoryRemoved;
-        public event Action<Category, Category> CategoryReplaced;
-        public event Action<Parameter, Category> ParameterAdded;
-        public event Action<Parameter, Category> ParameterRemoved;
-        public event Action<Parameter, Parameter, Category> ParameterReplaced;
+        public virtual event Action<Category> CategoryAdded;
+        public virtual event Action<Category> CategoryRemoved;
+        public virtual event Action<Category, Category> CategoryReplaced;
+        public virtual event Action<Parameter, Category> ParameterAdded;
+        public virtual event Action<Parameter, Category> ParameterRemoved;
+        public virtual event Action<Parameter, Parameter, Category> ParameterReplaced;
         
         public CategoriesList()
         {
             _categories = new List<Category>();
         }
 
-        public List<Category> GetAllCategories() => new List<Category>(_categories);
+        public virtual List<Category> GetAllCategories() => new List<Category>(_categories);
 
-        public Category GetCategory(int index) => this[index];
+        public virtual Category GetCategory(int index) => this[index];
         
-        public T GetCategory<T>(int index) where T : Category => (T)this[index];
+        public virtual T GetCategory<T>(int index) where T : Category => (T)this[index];
         
-        public Category GetCategoryByHash(int hash)
+        public virtual Category GetCategoryByHash(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -40,9 +40,9 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
-        public T GetCategoryByHash<T>(int hash) where T : Category => (T)GetCategoryByHash(hash);
+        public virtual T GetCategoryByHash<T>(int hash) where T : Category => (T)GetCategoryByHash(hash);
         
-        public List<Category> GetCategoriesByHash(int[] hashes)
+        public virtual List<Category> GetCategoriesByHash(int[] hashes)
         {
             if (hashes == null) return null;
             List<Category> result = new List<Category>();
@@ -53,7 +53,7 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
         
-        public List<T> GetCategoriesByHash<T>(int[] hashes) where T : Category
+        public virtual List<T> GetCategoriesByHash<T>(int[] hashes) where T : Category
         {
             if (hashes == null) return null;
             List<T> result = new List<T>();
@@ -64,7 +64,7 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
         
-        public bool TryGetCategoryByHash(int hash, out Category category)
+        public virtual bool TryGetCategoryByHash(int hash, out Category category)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -78,7 +78,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool TryGetCategoryByHash<T>(int hash, out T category) where T : Category
+        public virtual bool TryGetCategoryByHash<T>(int hash, out T category) where T : Category
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -92,7 +92,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool[] TryGetCategoriesByHash(int[] hashes, out List<Category> categories)
+        public virtual bool[] TryGetCategoriesByHash(int[] hashes, out List<Category> categories)
         {
             categories = new List<Category>();
             if (hashes == null) return null;
@@ -105,7 +105,7 @@ namespace LazyRedpaw.GenericParameters
             return isFound;
         }
         
-        public bool[] TryGetCategoriesByHash<T>(int[] hashes, out List<T> categories) where T : Category
+        public virtual bool[] TryGetCategoriesByHash<T>(int[] hashes, out List<T> categories) where T : Category
         {
             categories = new List<T>();
             if (hashes == null) return null;
@@ -118,7 +118,7 @@ namespace LazyRedpaw.GenericParameters
             return isFound;
         }
 
-        public void AddCategory(Category value)
+        public virtual void AddCategory(Category value)
         {
             if (!IsContainingCategory(value.Hash))
             {
@@ -130,7 +130,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void AddCategories(List<Category> values)
+        public virtual void AddCategories(List<Category> values)
         {
             for (var i = 0; i < values.Count; i++)
             {
@@ -138,7 +138,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceCategory(Category newValue)
+        public virtual void ReplaceCategory(Category newValue)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -158,7 +158,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceCategories(List<Category> newValues)
+        public virtual void ReplaceCategories(List<Category> newValues)
         {
             for (int i = 0; i < newValues.Count; i++)
             {
@@ -166,7 +166,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceOrAddCategory(Category newValue)
+        public virtual void ReplaceOrAddCategory(Category newValue)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -188,7 +188,7 @@ namespace LazyRedpaw.GenericParameters
             CategoryAdded?.Invoke(newValue);
         }
         
-        public void ReplaceOrAddCategories(List<Category> newValues)
+        public virtual void ReplaceOrAddCategories(List<Category> newValues)
         {
             for (int i = 0; i < newValues.Count; i++)
             {
@@ -196,9 +196,9 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public bool RemoveCategory(Category value) => RemoveCategory(value.Hash);
+        public virtual bool RemoveCategory(Category value) => RemoveCategory(value.Hash);
         
-        public bool RemoveCategory(int hash)
+        public virtual bool RemoveCategory(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -216,7 +216,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool[] RemoveCategories(List<Category> values)
+        public virtual bool[] RemoveCategories(List<Category> values)
         {
             bool[] isRemoved = new bool[values.Count];
             for (int i = 0; i < values.Count; i++)
@@ -226,7 +226,7 @@ namespace LazyRedpaw.GenericParameters
             return isRemoved;
         }
         
-        public bool[] RemoveCategories(int[] hashes)
+        public virtual bool[] RemoveCategories(int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             bool[] isRemoved = new bool[hashes.Length];
@@ -237,7 +237,7 @@ namespace LazyRedpaw.GenericParameters
             return isRemoved;
         }
         
-        public void RemoveCategoryAt(int index)
+        public virtual void RemoveCategoryAt(int index)
         {
             if (index >= 0 && index < Count)
             {
@@ -250,7 +250,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void RemoveAllCategories()
+        public virtual void RemoveAllCategories()
         {
             for (int i = _categories.Count - 1; i >= 0; i--)
             {
@@ -258,7 +258,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public bool IsContainingCategory(int hash)
+        public virtual bool IsContainingCategory(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -267,7 +267,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool[] IsContainingCategories(int[] hashes)
+        public virtual bool[] IsContainingCategories(int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             bool[] isContaining = new bool[hashes.Length];
@@ -278,9 +278,9 @@ namespace LazyRedpaw.GenericParameters
             return isContaining;
         }
 
-        public T GetCategoryCopy<T>(int hash) where T : Category => (T)GetCategoryCopy(hash);
+        public virtual T GetCategoryCopy<T>(int hash) where T : Category => (T)GetCategoryCopy(hash);
 
-        public Category GetCategoryCopy(int hash)
+        public virtual Category GetCategoryCopy(int hash)
         {
             for (int i = 0; i < _categories.Count; i++)
             {
@@ -292,7 +292,7 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
         
-        public IEnumerable<T> GetCategoriesCopy<T>(int[] hashes) where T : Category
+        public virtual IEnumerable<T> GetCategoriesCopy<T>(int[] hashes) where T : Category
         {
             if (hashes == null || hashes.Length == 0) return null;
             List<T> result = new List<T>();
@@ -303,7 +303,7 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
 
-        public IEnumerable<Category> GetCategoriesCopy(int[] hashes)
+        public virtual IEnumerable<Category> GetCategoriesCopy(int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             List<Category> result = new List<Category>();

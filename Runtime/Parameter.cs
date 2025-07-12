@@ -9,23 +9,23 @@ namespace LazyRedpaw.GenericParameters
     {
         [SerializeField, StaticHash] protected int _hash;
         
-        public int Hash => _hash;
+        public virtual int Hash => _hash;
 
-        public event Action Changed;
+        public virtual event Action Changed;
         
         public Parameter() { }
         public Parameter(int hash) => _hash = hash;
 
         public virtual Parameter Copy() => new Parameter(_hash);
         
-        protected void InvokeChanged() => Changed?.Invoke();
+        protected virtual void InvokeChanged() => Changed?.Invoke();
     }
 
     public abstract class Parameter<T> : Parameter
     {
         [SerializeField] protected T _value;
 
-        public T Value
+        public virtual T Value
         {
             get => _value;
             set

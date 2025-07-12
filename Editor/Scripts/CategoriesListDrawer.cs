@@ -158,26 +158,27 @@ namespace LazyRedpaw.GenericParameters
             void CreateNewElement(CategoryJson categoryJson)
             {
                 string nameLowerCase = GetCategoryName(categoryJson.Hash).ToLower();
-                if (categoriesProp.arraySize == 0) CreateFirstElement(categoryJson.Hash);
+                Type categoryType = Type.GetType(categoryJson.AssemblyQualifiedName);
+                if (categoriesProp.arraySize == 0) CreateFirstElement(categoryJson.Hash, categoryType);
                 else
                 {
-                    bool isAdded = CreateAndInsertElement(categoryJson.Hash, nameLowerCase);
-                    if (!isAdded) CreateElementAndAddAsLast(categoryJson.Hash);
+                    bool isAdded = CreateAndInsertElement(categoryJson.Hash, categoryType, nameLowerCase);
+                    if (!isAdded) CreateElementAndAddAsLast(categoryJson.Hash, categoryType);
                 }
                 categoriesProp.serializedObject.ApplyModifiedProperties();
                 categoriesProp.serializedObject.Update();
             }
 
-            void CreateElementAndAddAsLast(int hash)
+            void CreateElementAndAddAsLast(int hash, Type categoryType)
             {
                 categoriesProp.InsertArrayElementAtIndex(categoriesProp.arraySize);
                 SerializedProperty newElem = categoriesProp.GetArrayElementAtIndex(categoriesProp.arraySize - 1);
-                newElem.managedReferenceValue = Activator.CreateInstance(typeof(Category), hash);
+                newElem.managedReferenceValue = Activator.CreateInstance(categoryType, hash);
                 categoriesProp.serializedObject.ApplyModifiedProperties();
                 categoriesProp.serializedObject.Update();
             }
 
-            bool CreateAndInsertElement(int hash, string nameLowerCase)
+            bool CreateAndInsertElement(int hash, Type categoryType, string nameLowerCase)
             {
                 bool isAdded = false;
                 for (int l = 0; l < categoriesProp.arraySize; l++)
@@ -189,7 +190,7 @@ namespace LazyRedpaw.GenericParameters
                         isAdded = true;
                         categoriesProp.InsertArrayElementAtIndex(l);
                         SerializedProperty newElem = categoriesProp.GetArrayElementAtIndex(l);
-                        newElem.managedReferenceValue = Activator.CreateInstance(typeof(Category), hash);
+                        newElem.managedReferenceValue = Activator.CreateInstance(categoryType, hash);
                         categoriesProp.serializedObject.ApplyModifiedProperties();
                         categoriesProp.serializedObject.Update();
                         break;
@@ -199,11 +200,11 @@ namespace LazyRedpaw.GenericParameters
                 return isAdded;
             }
 
-            void CreateFirstElement(int hash)
+            void CreateFirstElement(int hash, Type categoryType)
             {
                 categoriesProp.InsertArrayElementAtIndex(0);
                 SerializedProperty newElem = categoriesProp.GetArrayElementAtIndex(0);
-                newElem.managedReferenceValue = Activator.CreateInstance(typeof(Category), hash);
+                newElem.managedReferenceValue = Activator.CreateInstance(categoryType, hash);
                 categoriesProp.serializedObject.ApplyModifiedProperties();
                 categoriesProp.serializedObject.Update();
             }

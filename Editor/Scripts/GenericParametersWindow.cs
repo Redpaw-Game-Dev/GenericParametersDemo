@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -20,11 +16,14 @@ namespace LazyRedpaw.GenericParameters
 {
     public class GenericParametersWindow : EditorWindow
     {
+        private static readonly Type CategoryBaseType = typeof(Category);
+        
         [SerializeField] private VisualTreeAsset _windowUXML;
         [SerializeField] private VisualTreeAsset _categoryUXML;
         [SerializeField] private VisualTreeAsset _parameterUXML;
 
         private DropdownField _newCategoryDropdown;
+        private DropdownField _newCategoryTypeDropdown;
         private Button _createCategoryButton;
         private ScrollView _categoriesScrollView;
         private Button _expandButton;
@@ -37,6 +36,8 @@ namespace LazyRedpaw.GenericParameters
         private bool _isExpanded;
         private List<Type> _parameterTypes;
         private List<string> _parameterTypeNames;
+        private List<Type> _categoryTypes;
+        private List<string> _categoryTypeNames;
         private List<CategoryJson> _categoryJsons;
 
         [MenuItem("Window/Generic Parameters")]
@@ -50,6 +51,9 @@ namespace LazyRedpaw.GenericParameters
             typeof(Parameter).GetNonAbstractChildrenAndSelfTypesAndTheirNames(out Type[] types, out string[] names);
             _parameterTypes = types.ToList();
             _parameterTypeNames = names.ToList();
+            typeof(Category).GetNonAbstractChildrenAndSelfTypesAndTheirNames(out types, out names);
+            _categoryTypes = types.ToList();
+            _categoryTypeNames = names.ToList();
             _categories = new List<CategoryElement>();
             _deletedCategories = new List<CategoryElement>();
             _categoryJsons = new List<CategoryJson>();
@@ -60,6 +64,7 @@ namespace LazyRedpaw.GenericParameters
         {
             _windowUXML.CloneTree(rootVisualElement);
             _newCategoryDropdown = rootVisualElement.Q<DropdownField>(NewCategoryNameDropdown);
+            _newCategoryTypeDropdown = rootVisualElement.Q<DropdownField>(CategoryTypeDropdown);
             _createCategoryButton = rootVisualElement.Q<Button>(CreateCategoryButton);
             _categoriesScrollView = rootVisualElement.Q<ScrollView>(CategoriesScrollView);
             _categoriesCountLabel = rootVisualElement.Q<Label>(CategoriesCount);
@@ -67,6 +72,8 @@ namespace LazyRedpaw.GenericParameters
             _saveButton = rootVisualElement.Q<Button>(SaveButtonTmp);
 
             LoadJson();
+            _newCategoryTypeDropdown.choices = _categoryTypeNames;
+            _newCategoryTypeDropdown.SetValueWithoutNotify(_categoryTypeNames.First(i => i.Equals(nameof(Category))));
             ProcessCategoriesCountChange();
             
             _createCategoryButton.clicked += OnCreateCategoryButtonClicked;
@@ -134,6 +141,10 @@ namespace LazyRedpaw.GenericParameters
                 }
                 else
                 {
+                    if (category.IsTypeChanged)
+                    {
+                        UpdateParameterFields(category.Hash, Type.GetType(category.AssemblyQualifiedName));
+                    }
                     for (int j = 0; j < categoryJson.Parameters.Count; j++)
                     {
                         ParameterJson parameterJson = categoryJson.Parameters[j];
@@ -198,9 +209,10 @@ namespace LazyRedpaw.GenericParameters
         private void OnCreateCategoryButtonClicked()
         {
             int categoryHash = GetCategoryId(_newCategoryDropdown.value);
+            Type categoryType = GetCategoryTypeByName(_newCategoryTypeDropdown.value);
             var categoryElement = _deletedCategories.FirstOrDefault(h => h.Hash == categoryHash);
             if (categoryElement != null) AddExistingCategory(categoryElement);
-            else AddNewCategory(_newCategoryDropdown.value, categoryHash);
+            else AddNewCategory(_newCategoryDropdown.value, categoryType, categoryHash);
             ProcessCategoriesCountChange();
             SortCategories();
         }
@@ -213,13 +225,14 @@ namespace LazyRedpaw.GenericParameters
             _categoriesCountLabel.text = "Items " + _categories.Count;
         }
 
-        private void AddNewCategory(string categoryName, int categoryHash)
+        private void AddNewCategory(string categoryName, Type categoryType, int categoryHash)
         {
             _categoryUXML.CloneTree(_categoriesScrollView.contentContainer);
             VisualElement categoryRoot = _categoriesScrollView.contentContainer.Q<VisualElement>(CategoryRoot);
             categoryRoot.name = categoryName;
             CategoryElement newCategory = new CategoryElement(categoryName, categoryHash, categoryRoot,
-                _parameterTypes, _parameterTypeNames, _parameterUXML);
+                _parameterTypes, _parameterTypeNames, _parameterUXML, _categoryTypes, _categoryTypeNames,
+                categoryType.Name, categoryType.AssemblyQualifiedName);
             newCategory.DeletionRequested += OnCategoryItemDeletionRequested;
             _categories.Add(newCategory);
         }
@@ -230,8 +243,10 @@ namespace LazyRedpaw.GenericParameters
             VisualElement categoryRoot = _categoriesScrollView.contentContainer.Q<VisualElement>(CategoryRoot);
             string categoryName = GetCategoryName(category.Hash);
             categoryRoot.name = categoryName;
+            Type categoryType = Type.GetType(category.AssemblyQualifiedName);
             CategoryElement newCategory = new CategoryElement(categoryName, category.Hash, categoryRoot,
-                _parameterTypes, _parameterTypeNames, _parameterUXML, category.Parameters);
+                _parameterTypes, _parameterTypeNames, _parameterUXML, _categoryTypes, _categoryTypeNames,
+                categoryType.Name, category.AssemblyQualifiedName, category.Parameters);
             newCategory.DeletionRequested += OnCategoryItemDeletionRequested;
             _categories.Add(newCategory);
         }
@@ -385,7 +400,7 @@ namespace LazyRedpaw.GenericParameters
             {
                 while (property.NextVisible(true))
                 {
-                    if (property.type == nameof(Constants.CategoriesList))
+                    if (property.type == nameof(CategoriesList))
                     {
                         SerializedProperty categoriesProp = property.FindPropertyRelative(CategoriesPropName);
                         for (int i = 0; i < categoriesProp.arraySize; i++)
@@ -429,7 +444,14 @@ namespace LazyRedpaw.GenericParameters
                     SerializedProperty hashProp = property.FindPropertyRelative(HashPropName);
                     if (hashProp != null && hashProp.intValue == hash)
                     {
-                        property.managedReferenceValue = Activator.CreateInstance(newType, hash);
+                        Type currType = property.GetManagedReferenceType();
+                        if (currType == CategoryBaseType || currType.ContainsTypeAsAncestor(CategoryBaseType))
+                        {
+                            SerializedProperty parametersProp = property.FindPropertyRelative(ParametersPropName);
+                            object parameters = parametersProp.GetTargetObjectOfProperty();
+                            property.managedReferenceValue = Activator.CreateInstance(newType, hash, parameters);
+                        }
+                        else property.managedReferenceValue = Activator.CreateInstance(newType, hash);
                         objectChanged = true;
                     }
                 }
@@ -448,6 +470,15 @@ namespace LazyRedpaw.GenericParameters
                     .Select(t => t.gameObject));
             }
             return sceneObjects;
+        }
+        
+        private Type GetCategoryTypeByName(string typeName)
+        {
+            for (int i = 0; i < _categoryTypes.Count; i++)
+            {
+                if(_categoryTypes[i].Name == typeName) return _categoryTypes[i];
+            }
+            return null;
         }
     }
 }

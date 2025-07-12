@@ -14,10 +14,10 @@ namespace LazyRedpaw.GenericParameters
         protected Mod() => _guid = SerializableGuid.NewGuid();
         protected Mod(SerializableGuid sourceGuid) : this() => _sourceGuid = sourceGuid;
 
-        public SerializableGuid Guid => _guid;
-        public SerializableGuid SourceGuid { get => _sourceGuid; set => _sourceGuid = value; }
-        public ModAction Action => _action;
-        public int Order => (int)_action;
+        public virtual SerializableGuid Guid => _guid;
+        public virtual SerializableGuid SourceGuid { get => _sourceGuid; set => _sourceGuid = value; }
+        public virtual ModAction Action => _action;
+        public virtual int Order => (int)_action;
 
         public abstract T GetValue<T>();
         public abstract Mod Copy();
@@ -26,9 +26,9 @@ namespace LazyRedpaw.GenericParameters
     [Serializable]
     public abstract class Mod<T> : Mod
     {
-        [SerializeField] private T _value;
+        [SerializeField] protected T _value;
 
-        public T Value => _value;
+        public virtual T Value => _value;
 
         protected Mod() : base() { }
         protected Mod(SerializableGuid sourceGuid) : base(sourceGuid) { }
@@ -36,7 +36,7 @@ namespace LazyRedpaw.GenericParameters
         protected Mod(SerializableGuid sourceGuid, T value) : base(sourceGuid) => _value = value;
         protected Mod(T value, ModAction action) : this(value) => _action = action;
         protected Mod(SerializableGuid sourceGuid, T value, ModAction action) : this(sourceGuid, value) => _action = action;
-        public T GetValue() => Value;
+        public virtual T GetValue() => Value;
         public override T1 GetValue<T1>()
         {
             try

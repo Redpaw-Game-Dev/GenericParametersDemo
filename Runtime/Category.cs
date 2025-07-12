@@ -8,16 +8,16 @@ namespace LazyRedpaw.GenericParameters
     [Serializable]
     public class Category
     {
-        [SerializeField, StaticHash] private int _hash;
-        [SerializeReference] private List<Parameter> _parameters;
+        [SerializeField, StaticHash] protected int _hash;
+        [SerializeReference] protected List<Parameter> _parameters;
 
-        public int Hash => _hash;
-        public Parameter this[int i] => _parameters[i];
-        public int Count => _parameters.Count;
+        public virtual int Hash => _hash;
+        public virtual Parameter this[int i] => _parameters[i];
+        public virtual int Count => _parameters.Count;
 
-        public event Action<Parameter> ParamAdded;
-        public event Action<Parameter> ParamRemoved;
-        public event Action<Parameter, Parameter> ParamReplaced;
+        public virtual event Action<Parameter> ParamAdded;
+        public virtual event Action<Parameter> ParamRemoved;
+        public virtual event Action<Parameter, Parameter> ParamReplaced;
         
         public Category()
         {
@@ -28,14 +28,20 @@ namespace LazyRedpaw.GenericParameters
         {
             _hash = hash;
         }
+        
+        public Category(int hash, List<Parameter> parameters)
+        {
+            _hash = hash;
+            _parameters = new List<Parameter>(parameters);
+        }
 
-        public List<Parameter> GetAllParams() => new List<Parameter>(_parameters);
+        public virtual List<Parameter> GetAllParams() => new List<Parameter>(_parameters);
         
-        public Parameter GetParam(int index) => this[index];
+        public virtual Parameter GetParam(int index) => this[index];
         
-        public T GetParam<T>(int index) where T : Parameter => (T)this[index];
+        public virtual T GetParam<T>(int index) where T : Parameter => (T)this[index];
         
-        public Parameter GetParamByHash(int hash)
+        public virtual Parameter GetParamByHash(int hash)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -44,9 +50,9 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
-        public T GetParamByHash<T>(int hash) where T : Parameter => (T)GetParamByHash(hash);
+        public virtual T GetParamByHash<T>(int hash) where T : Parameter => (T)GetParamByHash(hash);
 
-        public List<Parameter> GetParamsByHash(int[] hashes)
+        public virtual List<Parameter> GetParamsByHash(int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             List<Parameter> result = new List<Parameter>();
@@ -57,7 +63,7 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
         
-        public List<T> GetParamsByHash<T>(int[] hashes) where T : Parameter
+        public virtual List<T> GetParamsByHash<T>(int[] hashes) where T : Parameter
         {
             if (hashes == null || hashes.Length == 0) return null;
             List<T> result = new List<T>();
@@ -68,7 +74,7 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
         
-        public bool TryGetParamByHash(int hash, out Parameter parameter)
+        public virtual bool TryGetParamByHash(int hash, out Parameter parameter)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -82,7 +88,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool TryGetParamByHash<T>(int hash, out T parameter) where T : Parameter
+        public virtual bool TryGetParamByHash<T>(int hash, out T parameter) where T : Parameter
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -96,7 +102,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool[] TryGetParamsByHash(int[] hashes, out List<Parameter> parameters)
+        public virtual bool[] TryGetParamsByHash(int[] hashes, out List<Parameter> parameters)
         {
             parameters = new List<Parameter>();
             if (hashes == null) return null;
@@ -109,7 +115,7 @@ namespace LazyRedpaw.GenericParameters
             return isParamFound;
         }
         
-        public bool[] TryGetParamsByHash<T>(int[] hashes, out List<T> parameters) where T : Parameter
+        public virtual bool[] TryGetParamsByHash<T>(int[] hashes, out List<T> parameters) where T : Parameter
         {
             parameters = new List<T>();
             if (hashes == null) return null;
@@ -122,7 +128,7 @@ namespace LazyRedpaw.GenericParameters
             return isParamFound;
         }
 
-        public void AddParam(Parameter value)
+        public virtual void AddParam(Parameter value)
         {
             if (!IsContainingParam(value.Hash))
             {
@@ -131,7 +137,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void AddParams(List<Parameter> values)
+        public virtual void AddParams(List<Parameter> values)
         {
             for (int i = 0; i < values.Count; i++)
             {
@@ -139,7 +145,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceParam(Parameter newValue)
+        public virtual void ReplaceParam(Parameter newValue)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -153,7 +159,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceParams(List<Parameter> newValues)
+        public virtual void ReplaceParams(List<Parameter> newValues)
         {
             for (int i = 0; i < newValues.Count; i++)
             {
@@ -161,7 +167,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void ReplaceOrAddParam(Parameter newValue)
+        public virtual void ReplaceOrAddParam(Parameter newValue)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -177,7 +183,7 @@ namespace LazyRedpaw.GenericParameters
             ParamAdded?.Invoke(newValue);
         }
         
-        public void ReplaceOrAddParams(List<Parameter> newValues)
+        public virtual void ReplaceOrAddParams(List<Parameter> newValues)
         {
             for (int i = 0; i < newValues.Count; i++)
             {
@@ -185,9 +191,9 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public bool RemoveParam(Parameter value) => RemoveParam(value.Hash);
+        public virtual bool RemoveParam(Parameter value) => RemoveParam(value.Hash);
         
-        public bool RemoveParam(int hash)
+        public virtual bool RemoveParam(int hash)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -202,7 +208,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
 
-        public bool[] RemoveParams(List<Parameter> values)
+        public virtual bool[] RemoveParams(List<Parameter> values)
         {
             bool[] isRemoved = new bool[values.Count];
             for (int i = 0; i < values.Count; i++)
@@ -212,7 +218,7 @@ namespace LazyRedpaw.GenericParameters
             return isRemoved;
         }
         
-        public bool[] RemoveParams(int[] hashes)
+        public virtual bool[] RemoveParams(int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             bool[] isRemoved = new bool[hashes.Length];
@@ -223,7 +229,7 @@ namespace LazyRedpaw.GenericParameters
             return isRemoved;
         }
         
-        public void RemoveParamAt(int index)
+        public virtual void RemoveParamAt(int index)
         {
             if (index >= 0 && index < Count)
             {
@@ -233,7 +239,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public void RemoveAllParams()
+        public virtual void RemoveAllParams()
         {
             for (int i = _parameters.Count - 1; i >= 0; i--)
             {
@@ -241,7 +247,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
-        public bool IsContainingParam(int hash)
+        public virtual bool IsContainingParam(int hash)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -250,7 +256,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
-        public bool[] IsContainingParams(int[] hashes)
+        public virtual bool[] IsContainingParams(int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             bool[] isContaining = new bool[hashes.Length];
@@ -261,9 +267,9 @@ namespace LazyRedpaw.GenericParameters
             return isContaining;
         }
 
-        public T GetParamCopy<T>(int hash) where T : Parameter => (T)GetParamCopy(hash);
+        public virtual T GetParamCopy<T>(int hash) where T : Parameter => (T)GetParamCopy(hash);
 
-        public Parameter GetParamCopy(int hash)
+        public virtual Parameter GetParamCopy(int hash)
         {
             for (int i = 0; i < _parameters.Count; i++)
             {
@@ -275,7 +281,7 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
-        public IEnumerable<T> GetParamsCopy<T>(int[] hashes) where T : Parameter
+        public virtual IEnumerable<T> GetParamsCopy<T>(int[] hashes) where T : Parameter
         {
             if (hashes == null || hashes.Length == 0) return null;
             List<T> result = new List<T>();
@@ -286,7 +292,7 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
 
-        public IEnumerable<Parameter> GetParamsCopy (int[] hashes)
+        public virtual IEnumerable<Parameter> GetParamsCopy (int[] hashes)
         {
             if (hashes == null || hashes.Length == 0) return null;
             List<Parameter> result = new List<Parameter>();
@@ -297,9 +303,19 @@ namespace LazyRedpaw.GenericParameters
             return result;
         }
 
-        public Category CopyCategory()
+        public virtual Category CopyCategory()
         {
             Category category = new Category(_hash);
+            for (int i = 0; i < _parameters.Count; i++)
+            {
+                category.AddParam(_parameters[i].Copy());
+            }
+            return category;
+        }
+        
+        public virtual T CopyCategory<T>() where T : Category
+        {
+            T category = Activator.CreateInstance(typeof(T), _hash) as T;
             for (int i = 0; i < _parameters.Count; i++)
             {
                 category.AddParam(_parameters[i].Copy());

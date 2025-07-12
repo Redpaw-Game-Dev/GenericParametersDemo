@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
 using static LazyRedpaw.GenericParameters.Constants;
 using static LazyRedpaw.StaticHashes.StaticHashesHelper;
@@ -28,7 +27,6 @@ namespace LazyRedpaw.GenericParameters
         public VisualElement Root => _root;
         public int SavedHash => _savedHash;
         public string Name => _nameField.value;
-        public string SavedName => _savedName;
         public bool IsTypeChanged => _typeField.value != _savedTypeName;
         public int Hash => _hash;
         public string AssemblyQualifiedName => _assemblyQualifiedName;
