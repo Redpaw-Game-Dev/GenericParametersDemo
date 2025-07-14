@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LazyRedpaw.StaticHashes;
 using UnityEngine;
 
@@ -35,10 +36,13 @@ namespace LazyRedpaw.GenericParameters
             _parameters = new List<Parameter>(parameters);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual List<Parameter> GetAllParams() => new List<Parameter>(_parameters);
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual Parameter GetParam(int index) => this[index];
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual T GetParam<T>(int index) where T : Parameter => (T)this[index];
         
         public virtual Parameter GetParamByHash(int hash)
@@ -50,6 +54,7 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual T GetParamByHash<T>(int hash) where T : Parameter => (T)GetParamByHash(hash);
 
         public virtual List<Parameter> GetParamsByHash(int[] hashes)
@@ -70,6 +75,20 @@ namespace LazyRedpaw.GenericParameters
             for (int i = 0; i < hashes.Length; i++)
             {
                 result.Add(GetParamByHash<T>(hashes[i]));
+            }
+            return result;
+        }
+        
+        public virtual List<T> GetParamsWithType<T>() where T : Parameter
+        {
+            Type reqType = typeof(T);
+            List<T> result = new List<T>();
+            for (int i = 0; i < _parameters.Count; i++)
+            {
+                if (_parameters[i].GetType().ContainsTypeAsAncestor(reqType))
+                {
+                    result.Add((T)_parameters[i]);
+                }
             }
             return result;
         }
@@ -126,6 +145,20 @@ namespace LazyRedpaw.GenericParameters
                 isParamFound[i] = parameters[i] != null;
             }
             return isParamFound;
+        }
+        
+        public virtual bool TryGetParamsWithType<T>(out List<T> parameters) where T : Parameter
+        {
+            parameters = new List<T>();
+            Type reqType = typeof(T);
+            for (int i = 0; i < _parameters.Count; i++)
+            {
+                if (_parameters[i].GetType().ContainsTypeAsAncestor(reqType))
+                {
+                    parameters.Add((T)_parameters[i]);
+                }
+            }
+            return parameters.Count > 0;
         }
 
         public virtual void AddParam(Parameter value)
@@ -191,6 +224,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual bool RemoveParam(Parameter value) => RemoveParam(value.Hash);
         
         public virtual bool RemoveParam(int hash)

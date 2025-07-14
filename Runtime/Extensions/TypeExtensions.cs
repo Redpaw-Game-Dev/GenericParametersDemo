@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Object = System.Object;
 
 namespace LazyRedpaw.GenericParameters
 {
     public static class TypeExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ContainsTypeAsAncestor(this Type type, Type ancestor)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
@@ -24,6 +26,7 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type GetParentGenericType(this Type type)
         {
             if (type == null)
@@ -38,6 +41,7 @@ namespace LazyRedpaw.GenericParameters
             return null; // Not a generic parent type
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type[] GetParentGenericArguments(this Type type)
         {
             if (type == null)
@@ -52,6 +56,7 @@ namespace LazyRedpaw.GenericParameters
             return null; // No generic arguments
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetNonAbstractChildrenTypesAndTheirNames(this Type parentType, out Type[] types, out string[] typeNames)
         {
             List<Type> typesList = new List<Type>();
@@ -71,6 +76,7 @@ namespace LazyRedpaw.GenericParameters
             typeNames = typeNamesList.ToArray();
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetNonAbstractChildrenAndSelfTypesAndTheirNames(this Type parentType, out Type[] types, out string[] typeNames)
         {
             List<Type> typesList = new List<Type>();

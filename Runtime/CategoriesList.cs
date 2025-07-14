@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,10 +26,13 @@ namespace LazyRedpaw.GenericParameters
             _categories = new List<Category>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual List<Category> GetAllCategories() => new List<Category>(_categories);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual Category GetCategory(int index) => this[index];
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual T GetCategory<T>(int index) where T : Category => (T)this[index];
         
         public virtual Category GetCategoryByHash(int hash)
@@ -40,6 +44,7 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual T GetCategoryByHash<T>(int hash) where T : Category => (T)GetCategoryByHash(hash);
         
         public virtual List<Category> GetCategoriesByHash(int[] hashes)
@@ -60,6 +65,20 @@ namespace LazyRedpaw.GenericParameters
             for (int i = 0; i < hashes.Length; i++)
             {
                 result.Add(GetCategoryByHash<T>(hashes[i]));
+            }
+            return result;
+        }
+                
+        public virtual List<T> GetCategoriesWithType<T>() where T : Category
+        {
+            Type reqType = typeof(T);
+            List<T> result = new List<T>();
+            for (int i = 0; i < _categories.Count; i++)
+            {
+                if (_categories[i].GetType().ContainsTypeAsAncestor(reqType))
+                {
+                    result.Add((T)_categories[i]);
+                }
             }
             return result;
         }
@@ -116,6 +135,20 @@ namespace LazyRedpaw.GenericParameters
                 isFound[i] = categories[i] != null;
             }
             return isFound;
+        }
+        
+        public virtual bool TryGetCategoriesWithType<T>(out List<T> categories) where T : Category
+        {
+            categories = new List<T>();
+            Type reqType = typeof(T);
+            for (int i = 0; i < _categories.Count; i++)
+            {
+                if (_categories[i].GetType().ContainsTypeAsAncestor(reqType))
+                {
+                    categories.Add((T)_categories[i]);
+                }
+            }
+            return categories.Count > 0;
         }
 
         public virtual void AddCategory(Category value)
@@ -196,6 +229,7 @@ namespace LazyRedpaw.GenericParameters
             }
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual bool RemoveCategory(Category value) => RemoveCategory(value.Hash);
         
         public virtual bool RemoveCategory(int hash)
@@ -278,6 +312,7 @@ namespace LazyRedpaw.GenericParameters
             return isContaining;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual T GetCategoryCopy<T>(int hash) where T : Category => (T)GetCategoryCopy(hash);
 
         public virtual Category GetCategoryCopy(int hash)

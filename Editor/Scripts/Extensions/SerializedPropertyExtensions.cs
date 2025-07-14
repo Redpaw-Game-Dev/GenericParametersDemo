@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace LazyRedpaw.GenericParameters
 {
     public static class SerializedPropertyExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetChildrenPropertiesCount(this SerializedProperty property,
             string[] excludedPropNames = null)
         {
@@ -45,6 +47,7 @@ namespace LazyRedpaw.GenericParameters
             return propertiesCount;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetParentObjectOfProperty(this SerializedProperty property)
         {
             string path = property.propertyPath;
@@ -64,6 +67,7 @@ namespace LazyRedpaw.GenericParameters
             return obj;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object GetTargetObjectOfProperty(this SerializedProperty prop)
         {
             var path = prop.propertyPath.Replace(".Array.data[", "[");
@@ -87,6 +91,7 @@ namespace LazyRedpaw.GenericParameters
             return obj;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object GetValue_Imp(object source, string name)
         {
             if (source == null)
@@ -110,6 +115,7 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object GetValue_Imp(object source, string name, int index)
         {
             var enumerable = GetValue_Imp(source, name) as System.Collections.IEnumerable;
@@ -124,6 +130,7 @@ namespace LazyRedpaw.GenericParameters
             return enm.Current;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type GetPropertyFieldType(this SerializedProperty property)
         {
             if (property == null || property.serializedObject?.targetObject == null)
@@ -135,6 +142,7 @@ namespace LazyRedpaw.GenericParameters
             return GetFieldTypeFromPath(target.GetType(), path, property);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Type GetFieldTypeFromPath(Type rootType, string path, SerializedProperty property)
         {
             string[] elements = path.Split('.');
@@ -183,6 +191,7 @@ namespace LazyRedpaw.GenericParameters
             return currentType;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static FieldInfo GetFieldInfo(Type type, string name)
         {
             while (type != null)
@@ -197,6 +206,7 @@ namespace LazyRedpaw.GenericParameters
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsList(Type type, out Type elementType)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
@@ -209,21 +219,18 @@ namespace LazyRedpaw.GenericParameters
             return false;
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type GetManagedReferenceType(this SerializedProperty property)
         {
             var fullTypeName = property.managedReferenceFullTypename;
-            if (string.IsNullOrEmpty(fullTypeName))
-                return null;
+            if (string.IsNullOrEmpty(fullTypeName)) return null;
 
-            // Split into assembly and class name
             var parts = fullTypeName.Split(' ');
-            if (parts.Length != 2)
-                return null;
+            if (parts.Length != 2) return null;
 
             string assemblyName = parts[0];
             string className = parts[1];
 
-            // Try to get the assembly
             var assembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault(a => a.GetName().Name == assemblyName);
 
@@ -233,7 +240,6 @@ namespace LazyRedpaw.GenericParameters
                 return null;
             }
 
-            // Get the type
             var type = assembly.GetType(className);
             if (type == null)
             {
@@ -241,35 +247,6 @@ namespace LazyRedpaw.GenericParameters
             }
 
             return type;
-            
-            // string managedRefTypeStr = property.type;
-            // const string prefix = "managedReference<";
-            // const string suffix = ">";
-            //
-            // if (managedRefTypeStr.StartsWith(prefix) && managedRefTypeStr.EndsWith(suffix))
-            // {
-            //     string typeName = property.type.Substring(
-            //         prefix.Length,
-            //         property.type.Length - prefix.Length - suffix.Length
-            //     );
-            //
-            //     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            //     for (int i = 0; i < assemblies.Length; i++)
-            //     {
-            //         Assembly assembly = assemblies[i];
-            //         Type[] types = assembly.GetTypes();
-            //         for (int j = 0; j < types.Length; j++)
-            //         {
-            //             Type type = types[j];
-            //             if (type.Name == typeName)
-            //             {
-            //                 return type;
-            //             }
-            //         }
-            //     }
-            // }
-            //
-            // return null;
         }
     }
 }
