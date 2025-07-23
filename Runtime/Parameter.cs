@@ -5,9 +5,16 @@ using UnityEngine;
 
 namespace LazyRedpaw.GenericParameters
 {
-    [MemoryPackable]
+    public interface IParameter
+    {
+        public int Hash { get; }
+
+        public IParameter Copy();
+    }
+    
     [Serializable]
-    public partial class Parameter
+	[MemoryPackable]
+    public class Parameter : IParameter
     {
         [SerializeField, StaticHash] protected int _hash;
         
@@ -19,7 +26,7 @@ namespace LazyRedpaw.GenericParameters
         [MemoryPackConstructor]
         public Parameter(int hash) => _hash = hash;
 
-        public virtual Parameter Copy() => new Parameter(_hash);
+        public virtual IParameter Copy() => new Parameter(_hash);
         
         protected virtual void InvokeChanged() => Changed?.Invoke();
     }
