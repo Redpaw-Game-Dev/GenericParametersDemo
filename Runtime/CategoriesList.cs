@@ -17,9 +17,9 @@ namespace LazyRedpaw.GenericParameters
         public virtual event Action<Category> CategoryAdded;
         public virtual event Action<Category> CategoryRemoved;
         public virtual event Action<Category, Category> CategoryReplaced;
-        public virtual event Action<Parameter, Category> ParameterAdded;
-        public virtual event Action<Parameter, Category> ParameterRemoved;
-        public virtual event Action<Parameter, Parameter, Category> ParameterReplaced;
+        public virtual event Action<IParameter, Category> ParameterAdded;
+        public virtual event Action<IParameter, Category> ParameterRemoved;
+        public virtual event Action<IParameter, IParameter, Category> ParameterReplaced;
         
         public CategoriesList()
         {

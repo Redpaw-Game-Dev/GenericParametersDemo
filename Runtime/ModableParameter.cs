@@ -140,7 +140,7 @@ namespace LazyRedpaw.GenericParameters
             _mods = new List<Mod>(otherStat._mods);
         }
         public virtual ModableParameter CopyParameter() => new ModableParameter(_hash, new List<Mod>(_mods));
-        public override Parameter Copy() => CopyParameter();
+        public override IParameter Copy() => CopyParameter();
     }
     
     [Serializable]

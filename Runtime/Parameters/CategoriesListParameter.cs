@@ -5,6 +5,8 @@ namespace LazyRedpaw.GenericParameters
     public class CategoriesListParameter : Parameter
     {
         [SerializeField] private CategoriesList _categories;
+        
+        public CategoriesList Categories => _categories;
 
         public CategoriesListParameter(int hash) : base(hash)
         {
