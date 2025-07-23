@@ -14,7 +14,7 @@ namespace LazyRedpaw.GenericParameters
     
     [Serializable]
 	[MemoryPackable]
-    public class Parameter : IParameter
+    public partial class Parameter : IParameter
     {
         [SerializeField, StaticHash] protected int _hash;
         
