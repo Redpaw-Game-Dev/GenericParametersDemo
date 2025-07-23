@@ -1,8 +1,12 @@
-﻿namespace LazyRedpaw.GenericParameters
+﻿using MemoryPack;
+
+namespace LazyRedpaw.GenericParameters
 {
-    public class BoolParameter : Parameter<bool>
+    [MemoryPackable]
+    public partial class BoolParameter : Parameter<bool>
     {
         public BoolParameter(int hash) : base(hash) { }
+        [MemoryPackConstructor]
         public BoolParameter(int hash, bool value) : base(hash, value) { }
     }
 }

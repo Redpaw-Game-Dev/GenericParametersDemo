@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using MemoryPack;
 using UnityEngine;
 
 namespace LazyRedpaw.GenericParameters
 {
-    public class ModableFloat : ModableParameter<float>
+    [MemoryPackable]
+    public partial class ModableFloat : ModableParameter<float>
     {
         public ModableFloat() { }
         public ModableFloat(int hash) : base(hash) { }
         public ModableFloat(float baseValue, int hash) : base(baseValue, hash) { }
+        [MemoryPackConstructor]
         public ModableFloat(float baseValue, int hash, IEnumerable<Mod> mods) : base(baseValue, hash, mods) { }
         public ModableFloat(object baseValue, int hash, IEnumerable<Mod> mods) : base(baseValue, hash, mods) { }
 

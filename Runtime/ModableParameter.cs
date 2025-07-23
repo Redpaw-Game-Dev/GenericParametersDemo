@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using LazyRedpaw.GuidSerialization;
+using MemoryPack;
 using UnityEngine;
 
 namespace LazyRedpaw.GenericParameters

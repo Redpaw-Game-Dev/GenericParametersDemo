@@ -1,11 +1,13 @@
 ﻿using System;
 using LazyRedpaw.StaticHashes;
+using MemoryPack;
 using UnityEngine;
 
 namespace LazyRedpaw.GenericParameters
 {
+    [MemoryPackable]
     [Serializable]
-    public class Parameter
+    public partial class Parameter
     {
         [SerializeField, StaticHash] protected int _hash;
         
@@ -14,6 +16,7 @@ namespace LazyRedpaw.GenericParameters
         public virtual event Action Changed;
         
         public Parameter() { }
+        [MemoryPackConstructor]
         public Parameter(int hash) => _hash = hash;
 
         public virtual Parameter Copy() => new Parameter(_hash);

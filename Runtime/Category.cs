@@ -2,18 +2,25 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using LazyRedpaw.StaticHashes;
+using MemoryPack;
 using UnityEngine;
 
 namespace LazyRedpaw.GenericParameters
 {
     [Serializable]
-    public class Category
+    [MemoryPackable]
+    public partial class Category
     {
+        [MemoryPackInclude]
         [SerializeField, StaticHash] protected int _hash;
+        [MemoryPackInclude]
         [SerializeReference] protected List<Parameter> _parameters;
 
+        [MemoryPackIgnore]
         public virtual int Hash => _hash;
+        [MemoryPackIgnore]
         public virtual Parameter this[int i] => _parameters[i];
+        [MemoryPackIgnore]
         public virtual int Count => _parameters.Count;
 
         public virtual event Action<Parameter> ParamAdded;
@@ -29,7 +36,7 @@ namespace LazyRedpaw.GenericParameters
         {
             _hash = hash;
         }
-        
+        [MemoryPackConstructor]
         public Category(int hash, List<Parameter> parameters)
         {
             _hash = hash;

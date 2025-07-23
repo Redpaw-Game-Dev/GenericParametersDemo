@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using MemoryPack;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace LazyRedpaw.GenericParameters
 {
     [Serializable]
-    public class CategoriesList
+    [MemoryPackable]
+    public partial class CategoriesList
     {
+        [MemoryPackInclude]
         [SerializeReference] protected List<Category> _categories;
         
         public virtual Category this[int i] => _categories[i];
@@ -24,6 +27,11 @@ namespace LazyRedpaw.GenericParameters
         public CategoriesList()
         {
             _categories = new List<Category>();
+        }
+        [MemoryPackConstructor]
+        public CategoriesList(List<Category> categories)
+        {
+            _categories = new List<Category>(categories);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

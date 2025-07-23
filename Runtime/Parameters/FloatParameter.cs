@@ -1,8 +1,12 @@
-﻿namespace LazyRedpaw.GenericParameters
+﻿using MemoryPack;
+
+namespace LazyRedpaw.GenericParameters
 {
-    public class FloatParameter : Parameter<float>
+    [MemoryPackable]
+    public partial class FloatParameter : Parameter<float>
     {
         public FloatParameter(int hash) : base(hash) { }
+        [MemoryPackConstructor]
         public FloatParameter(int hash, float value) : base(hash, value) { }
     }
 }
