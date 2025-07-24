@@ -87,6 +87,7 @@ namespace LazyRedpaw.GenericParameters
         };
         
         public static readonly string GenericParametersJsonFilePath = Path.Combine(Application.dataPath, "Scripts/LazyRedpaw/GenericParameters/GenericParametersStorage.cs");
+        public static readonly string FormatterFilePath = Path.Combine(Application.dataPath, "Scripts/LazyRedpaw/GenericParameters/GenericParametersFormatter.cs");
         public const int JsonRowIndex = 6;
         public static readonly Regex JsonRegex = new Regex("^\"(.*)\"$");
         

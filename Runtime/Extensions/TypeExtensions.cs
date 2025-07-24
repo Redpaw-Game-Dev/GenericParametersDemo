@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MemoryPack;
 using Object = System.Object;
 
 namespace LazyRedpaw.GenericParameters
@@ -14,7 +15,7 @@ namespace LazyRedpaw.GenericParameters
             if (type == null) throw new ArgumentNullException(nameof(type));
             Type lastType = typeof(Object);
             Type baseType = type.BaseType;
-            while (baseType != lastType)
+            while (baseType != null && baseType != lastType)
             {
                 if (ancestor.IsGenericType && baseType.IsGenericType &&
                     baseType.GetGenericTypeDefinition() == ancestor)
@@ -105,6 +106,32 @@ namespace LazyRedpaw.GenericParameters
             }
             types = typesList.ToArray();
             typeNames = typeNamesList.ToArray();
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IList<Type> GetMemoryPackableNonAbstractChildrenTypes(this Type parentType)
+        {
+            List<Type> typeList = new List<Type>();
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            for (int i = 0; i < assemblies.Length; i++)
+            {
+                Assembly assembly = assemblies[i];
+                Type[] allTypes = assembly.GetTypes();
+                for (int j = 0; j < allTypes.Length; j++)
+                {
+                    Type type = allTypes[j];
+                    bool isAssignableFrom = parentType.IsAssignableFrom(type);
+                    bool isDefined = Attribute.IsDefined(type, typeof(MemoryPackableAttribute));
+                    if (type.IsClass &&
+                        !type.IsAbstract &&
+                        isAssignableFrom &&
+                        isDefined)
+                    {
+                        typeList.Add(type);
+                    }
+                }
+            }
+            return typeList;
         }
     }
 }
