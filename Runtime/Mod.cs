@@ -25,7 +25,7 @@ namespace LazyRedpaw.GenericParameters
         protected Mod() => _guid = SerializableGuid.NewGuid();
         protected Mod(SerializableGuid sourceGuid) : this() => _sourceGuid = sourceGuid;
         [MemoryPackConstructor]
-        protected Mod(SerializableGuid guid, SerializableGuid sourceGuid, ModAction action) : this()
+        protected Mod(SerializableGuid guid, SerializableGuid sourceGuid, ModAction action)
         {
             _guid = guid;
             _sourceGuid = sourceGuid;
