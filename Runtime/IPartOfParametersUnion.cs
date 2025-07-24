@@ -20,7 +20,7 @@ namespace LazyRedpaw.GenericParameters
     // [MemoryPackUnion(14, typeof(Vector3ListParameter))]
     // [MemoryPackUnion(15, typeof(Vector3Parameter))]
     // [MemoryPackUnion(16, typeof(Category))]
-    public interface IPartOfParametersUnion
+    public partial interface IPartOfParametersUnion
     {
         
     }
